@@ -60,10 +60,19 @@ export const siteConfig = {
   articles: [
     {
       title: "The Tortorella Effect",
-      slug: "vgk-trade-roi",
+      slug: "the-tortorella-effect",
       eyebrow: "Article",
       description:
         "A look at Vegas under John Tortorella and how the team's pace and overall play have shifted in his first three games behind the bench.",
+      href: "/articles/the-tortorella-effect",
+      readTime: "4/6/26"
+    },
+    {
+      title: "Rethinking VGK Trades: What the Data Actually Says",
+      slug: "vgk-trade-roi",
+      eyebrow: "Project Article",
+      description:
+        "A closer look at what the VGK Trade ROI project says about Fleury, Tatar, Suzuki, Eichel, and the value of evaluating trades over time.",
       href: "/articles/vgk-trade-roi",
       readTime: "4/6/26"
     }
