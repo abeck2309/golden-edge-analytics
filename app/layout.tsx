@@ -3,6 +3,7 @@ import "./globals.css";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { siteConfig } from "@/lib/site-config";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   title: siteConfig.title,
@@ -33,6 +34,7 @@ export default function RootLayout({
           <main id="main-content">{children}</main>
           <SiteFooter />
         </div>
+        <SpeedInsights />
       </body>
     </html>
   );
