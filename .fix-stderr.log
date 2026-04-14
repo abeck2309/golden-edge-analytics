@@ -1,0 +1,30 @@
+ ⚠ Port 3000 is in use, trying 3001 instead.
+ ⚠ Port 3001 is in use, trying 3002 instead.
+ ⚠ Port 3002 is in use, trying 3003 instead.
+ ⨯ [Error: Cannot find module 'C:\Users\Andrew\OneDrive\Documents\vgk-trade-roi\.next\server\middleware-manifest.json'
+Require stack:
+- C:\Users\Andrew\OneDrive\Documents\vgk-trade-roi\node_modules\next\dist\server\next-server.js
+- C:\Users\Andrew\OneDrive\Documents\vgk-trade-roi\node_modules\next\dist\server\dev\next-dev-server.js
+- C:\Users\Andrew\OneDrive\Documents\vgk-trade-roi\node_modules\next\dist\server\next.js
+- C:\Users\Andrew\OneDrive\Documents\vgk-trade-roi\node_modules\next\dist\server\lib\start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\DumpStack.log.tmp'
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\hiberfil.sys'
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\swapfile.sys'
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\DumpStack.log.tmp'
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\hiberfil.sys'
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\pagefile.sys'
+Watchpack Error (initial scan): Error: EINVAL: invalid argument, lstat 'C:\swapfile.sys'
+ ⨯ [Error: Cannot find module 'C:\Users\Andrew\OneDrive\Documents\vgk-trade-roi\.next\server\middleware-manifest.json'
+Require stack:
+- C:\Users\Andrew\OneDrive\Documents\vgk-trade-roi\node_modules\next\dist\server\next-server.js
+- C:\Users\Andrew\OneDrive\Documents\vgk-trade-roi\node_modules\next\dist\server\dev\next-dev-server.js
+- C:\Users\Andrew\OneDrive\Documents\vgk-trade-roi\node_modules\next\dist\server\next.js
+- C:\Users\Andrew\OneDrive\Documents\vgk-trade-roi\node_modules\next\dist\server\lib\start-server.js] {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [Array]
+}
+^C

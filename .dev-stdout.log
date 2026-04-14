@@ -1,0 +1,66 @@
+
+> vgk-trade-roi@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3001
+   - Network:      http://10.5.0.2:3001
+
+ ✓ Starting...
+ ✓ Ready in 1548ms
+ ○ Compiling / ...
+ ✓ Compiled / in 4.1s (734 modules)
+ GET / 200 in 4486ms
+ ✓ Compiled /methodology in 449ms (740 modules)
+ GET /methodology 200 in 547ms
+ GET /methodology 200 in 29ms
+ ✓ Compiled /dashboards in 287ms (730 modules)
+ GET /dashboards 200 in 363ms
+ ✓ Compiled /trade-notes in 261ms (733 modules)
+ GET /trade-notes 200 in 317ms
+ ✓ Compiled /about in 225ms (735 modules)
+ GET /about 200 in 271ms
+ ✓ Compiled in 1178ms (749 modules)
+ ✓ Compiled in 342ms (749 modules)
+ ✓ Compiled in 770ms (742 modules)
+ GET / 200 in 256ms
+ GET /methodology 200 in 29ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 786ms (760 modules)
+ GET /dashboards 404 in 976ms
+ GET /_next/static/webpack/bccf9393e6f0e06a.webpack.hot-update.json 404 in 597ms
+ GET /dashboards 500 in 134ms
+ ○ Compiling /_error ...
+ GET /methodology 200 in 637ms
+ ✓ Compiled /_error in 1930ms (1075 modules)
+ GET /dashboards 500 in 258ms
+ GET /dashboards 500 in 246ms
+ GET /methodology 200 in 162ms
+ GET /trade-notes 500 in 276ms
+ GET /trade-notes 500 in 247ms
+ GET / 200 in 63ms
+ GET /dashboards 500 in 248ms
+ GET /dashboards 500 in 247ms
+ GET / 200 in 60ms
+ GET /dashboards 500 in 255ms
+ GET /dashboards 500 in 248ms
+ GET / 200 in 61ms
+ GET /dashboards 500 in 253ms
+ GET /dashboards 500 in 256ms
+ GET / 200 in 68ms
+ GET /dashboards 500 in 250ms
+ GET /dashboards 500 in 245ms
+ ✓ Compiled in 1192ms (1064 modules)
+ GET /dashboards 200 in 204ms
+ GET /dashboards 200 in 308ms
+ GET / 500 in 2567ms
+ GET / 500 in 76ms
+ ✓ Compiled in 796ms (1064 modules)
+ GET /dashboards 200 in 125ms
+ GET /dashboards 200 in 131ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 748ms (1068 modules)
+ GET /_next/static/chunks/main-app.js?v=1775454557301 404 in 979ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 979ms
+ ✓ Compiled in 1149ms (1125 modules)
+ ✓ Compiled in 751ms (1125 modules)

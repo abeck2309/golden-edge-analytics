@@ -1,0 +1,16 @@
+
+> vgk-trade-roi@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3003
+   - Network:      http://10.5.0.2:3003
+
+ ✓ Starting...
+ ✓ Ready in 1977ms
+ ○ Compiling / ...
+ ✓ Compiled / in 4.1s (778 modules)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 1802ms (1107 modules)
+ GET / 500 in 6725ms
+ GET / 500 in 281ms

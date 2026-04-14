@@ -1,0 +1,63 @@
+
+> vgk-trade-roi@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3002
+   - Network:      http://10.5.0.2:3002
+
+ ✓ Starting...
+ ✓ Ready in 3s
+ ○ Compiling /dashboards ...
+ ✓ Compiled /dashboards in 1233ms (721 modules)
+ GET /dashboards 200 in 1549ms
+ GET /dashboards 200 in 58ms
+ ✓ Compiled / in 336ms (724 modules)
+ GET / 200 in 441ms
+ ✓ Compiled /methodology in 276ms (730 modules)
+ GET /methodology 200 in 334ms
+ GET /dashboards 200 in 19ms
+ GET /methodology 200 in 22ms
+ GET / 200 in 25ms
+ GET /methodology 200 in 16ms
+ GET /dashboards 200 in 16ms
+ ✓ Compiled /about in 237ms (732 modules)
+ GET /about 200 in 290ms
+ ✓ Compiled /trade-notes in 259ms (735 modules)
+ GET /trade-notes 200 in 309ms
+ GET /about 200 in 15ms
+ GET / 200 in 25ms
+ GET /methodology 200 in 26ms
+ GET / 200 in 22ms
+ GET / 200 in 19ms
+ GET /methodology 200 in 20ms
+ GET / 200 in 20ms
+ GET /methodology 200 in 19ms
+ GET /dashboards 200 in 17ms
+ GET / 200 in 24ms
+ ✓ Compiled in 2.4s (793 modules)
+ ✓ Compiled in 126ms (341 modules)
+ GET /dashboards 200 in 133ms
+ ✓ Compiled /trade-notes in 173ms (455 modules)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 918ms (1111 modules)
+ GET /methodology 500 in 2147ms
+ GET /about 500 in 2147ms
+ GET / 500 in 2148ms
+ GET /trade-notes 500 in 2148ms
+ GET / 500 in 246ms
+ ✓ Compiled in 1044ms (1122 modules)
+ GET / 200 in 67ms
+ ✓ Compiled /trade-notes in 150ms (542 modules)
+ GET /trade-notes 200 in 634ms
+ GET /dashboards 500 in 2758ms
+ GET /about 500 in 2758ms
+ GET /methodology 500 in 2760ms
+ GET /methodology 500 in 73ms
+ GET / 500 in 70ms
+ GET / 500 in 75ms
+ GET / 500 in 76ms
+ GET /methodology 500 in 68ms
+ ✓ Compiled /_not-found in 993ms (1112 modules)
+ GET /_next/static/webpack/b5bbd2045ccb917d.webpack.hot-update.json 404 in 721ms
+ GET /methodology 500 in 850ms
