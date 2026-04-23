@@ -13,6 +13,14 @@ const editorialRows = [
     cta: "Read the coverage"
   },
   {
+    label: "Quizzes",
+    title: "Faster interactive fan prompts, trivia, and shareable results.",
+    description:
+      "Quizzes give Golden Edge Analytics a lighter lane for Golden Knights trivia, player matches, roster scenarios, and quick fan engagement.",
+    href: "/quizzes",
+    cta: "Try the quizzes"
+  },
+  {
     label: "Projects",
     title: "Bigger visual and model-driven analysis when the idea needs more room.",
     description:
@@ -132,6 +140,8 @@ export default function HomePage() {
             <div className="lg:pt-2">
               <Link
                 href={item.href}
+                target={"isExternal" in item && item.isExternal ? "_blank" : undefined}
+                rel={"isExternal" in item && item.isExternal ? "noreferrer" : undefined}
                 className="inline-flex items-center justify-center rounded-full border border-gold/30 px-5 py-3 text-sm font-semibold text-gold-bright hover:border-gold hover:text-white"
               >
                 {item.cta}

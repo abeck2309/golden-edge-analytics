@@ -8,6 +8,7 @@ export type DashboardConfig = {
 export type NavItem = {
   href: string;
   label: string;
+  isExternal?: boolean;
 };
 
 export type ProjectConfig = {
@@ -40,6 +41,7 @@ export const siteConfig = {
     { href: "/", label: "Home" },
     { href: "/projects", label: "Projects" },
     { href: "/articles", label: "Articles" },
+    { href: "/quizzes", label: "Quizzes" },
     { href: "/coming-soon", label: "Coming Soon" },
     { href: "/about", label: "About" }
   ] satisfies NavItem[],
