@@ -91,6 +91,15 @@ export const siteConfig = {
   ] satisfies ProjectConfig[],
   articles: [
     {
+      title: "Vegas Goes to Utah with the Series Knotted 1-1",
+      slug: "vegas-goes-to-utah-with-the-series-knotted-1-1",
+      eyebrow: "Article",
+      description:
+        "Vegas splits the first two games with Utah and heads to Salt Lake City tied 1-1 with the series shifting to the Mammoth's first home playoff game.",
+      href: "/articles/vegas-goes-to-utah-with-the-series-knotted-1-1",
+      readTime: "4/23/26"
+    },
+    {
       title: "The Jets Come Crashing Down in\u00A0Vegas",
       slug: "the-jets-come-crashing-down-in-vegas",
       eyebrow: "Article",
