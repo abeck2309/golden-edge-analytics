@@ -33,6 +33,16 @@ export type ArticleConfig = {
   readTime: string;
 };
 
+export type PodcastEpisodeConfig = {
+  title: string;
+  slug: string;
+  label: string;
+  description: string;
+  date: string;
+  duration: string;
+  audioSrc?: string;
+};
+
 export const siteConfig = {
   title: "Golden Edge Analytics",
   description:
@@ -41,6 +51,7 @@ export const siteConfig = {
     { href: "/", label: "Home" },
     { href: "/projects", label: "Projects" },
     { href: "/articles", label: "Articles" },
+    { href: "/podcasts", label: "Podcasts" },
     { href: "/quizzes", label: "Quizzes" },
     { href: "/coming-soon", label: "Coming Soon" },
     { href: "/about", label: "About" }
@@ -136,6 +147,27 @@ export const siteConfig = {
       readTime: "4/6/26"
     }
   ] satisfies ArticleConfig[],
+  podcasts: [
+    {
+      title: "Golden Edge Analytics Podcast",
+      slug: "episode-1",
+      label: "Episode 1",
+      description:
+        "A temporary audio upload is connected here so the podcast player and reactive waveform can be tested on the site.",
+      date: "Test episode",
+      duration: "--:--",
+      audioSrc: "/podcast-test-episode.mp3"
+    },
+    {
+      title: "Postgame Reactions",
+      slug: "episode-2",
+      label: "Episode 2",
+      description:
+        "Use this slot for quick reactions, playoff breakdowns, or shorter audio takes after big games.",
+      date: "Coming soon",
+      duration: "--:--"
+    }
+  ] satisfies PodcastEpisodeConfig[],
   dashboards: {
     tradeRoi: {
       title: "Trade ROI Dashboard",

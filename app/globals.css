@@ -52,3 +52,10 @@ iframe:focus-visible {
 .ice-stripe {
   background-image: linear-gradient(90deg, transparent, rgba(216, 188, 122, 0.35), transparent);
 }
+
+.podcast-curtain-shell {
+  filter: blur(12px);
+  opacity: 0.16;
+  user-select: none;
+  pointer-events: none;
+}
