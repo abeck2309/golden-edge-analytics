@@ -51,6 +51,7 @@ export const siteConfig = {
     { href: "/", label: "Home" },
     { href: "/projects", label: "Projects" },
     { href: "/articles", label: "Articles" },
+    { href: "/vgk-updates", label: "VGK Updates" },
     { href: "/podcasts", label: "Podcasts" },
     { href: "/quizzes", label: "Quizzes" },
     { href: "/coming-soon", label: "Coming Soon" },

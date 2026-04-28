@@ -54,7 +54,15 @@ export function SiteHeader() {
                   isActive && "border-gold/30 bg-gold/10 text-white"
                 )}
               >
-                {item.label}
+                <span className="inline-flex items-center gap-2">
+                  {item.label}
+                  {item.href === "/vgk-updates" ? (
+                    <span
+                      aria-label="Live updates"
+                      className="h-2 w-2 animate-pulse rounded-full bg-red-400 shadow-[0_0_12px_rgba(248,113,113,0.95)]"
+                    />
+                  ) : null}
+                </span>
               </Link>
             );
           })}
