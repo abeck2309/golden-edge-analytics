@@ -48,7 +48,7 @@ export function SiteHeader() {
         >
           <div className="flex h-11 w-11 items-center justify-center overflow-hidden">
             <Image
-              src="/vgk-logo.png"
+              src="/VGK.png"
               alt=""
               width={34}
               height={34}
