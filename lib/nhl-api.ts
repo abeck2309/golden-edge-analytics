@@ -147,6 +147,7 @@ type GoalPlay = {
     periodType: string;
   };
   timeInPeriod: string;
+  timeRemaining?: string;
   typeDescKey: string;
   details?: {
     scoringPlayerId?: number;
@@ -427,6 +428,17 @@ function periodKey(period: { number: number; periodType: string }) {
   return period.periodType === "REG" ? String(period.number) : period.periodType;
 }
 
+function ordinalPeriod(period: { number: number; periodType: string }) {
+  if (period.periodType !== "REG") {
+    return period.periodType;
+  }
+
+  if (period.number === 1) return "1st period";
+  if (period.number === 2) return "2nd period";
+  if (period.number === 3) return "3rd period";
+  return `${period.number}th period`;
+}
+
 function playerName(playerId: number | undefined, rosterById: Map<number, RosterSpot>) {
   if (!playerId) return "Unknown";
   const player = rosterById.get(playerId);
@@ -464,7 +476,9 @@ function scoringBreakdown(playByPlay: GamePlayByPlay, boxscore: GameBoxscore) {
       return {
         eventId: play.eventId,
         period: periodKey(play.periodDescriptor),
+        periodLabel: ordinalPeriod(play.periodDescriptor),
         time: play.timeInPeriod,
+        timeRemaining: play.timeRemaining ?? "00:00",
         teamAbbrev: scoringTeam?.abbrev ?? "NHL",
         scorerPlayerId: play.details?.scoringPlayerId,
         scorer: playerName(play.details?.scoringPlayerId, rosterById),
@@ -704,7 +718,7 @@ export async function getVgkGoalAlertsForGame(gameId: number) {
       isVgkGoal,
       opponent,
       title: `${isVgkGoal ? "GOLDEN KNIGHTS" : goal.teamAbbrev} GOAL🚨, ${score}`,
-      body: `${goal.scorer} (${goal.scorerTotal}) ${assistText} @ ${goal.time} in game`
+      body: `${goal.scorer} (${goal.scorerTotal}) ${assistText} @ ${goal.timeRemaining} remaining in ${goal.periodLabel}`
     };
   });
 }
