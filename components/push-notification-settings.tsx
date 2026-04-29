@@ -12,6 +12,17 @@ type PushStatus =
   | "denied"
   | "error";
 
+type AlertTopic = "game-start" | "goals" | "final-score" | "vgk-news";
+
+const alertTopics: { description: string; label: string; value: AlertTopic }[] = [
+  { description: "Puck-drop notifications when VGK games start.", label: "Game Starting", value: "game-start" },
+  { description: "Goal notifications during VGK games for either team.", label: "Goals", value: "goals" },
+  { description: "Final score notifications after VGK games end.", label: "Final Score", value: "final-score" },
+  { description: "Golden Edge updates and custom VGK alerts.", label: "VGK News", value: "vgk-news" }
+];
+
+const defaultTopics = alertTopics.map((topic) => topic.value);
+
 function isStandalonePwa() {
   const navigatorWithStandalone = window.navigator as Navigator & { standalone?: boolean };
 
@@ -47,6 +58,7 @@ export function PushNotificationSettings() {
   const [status, setStatus] = useState<PushStatus>("checking");
   const [message, setMessage] = useState("Checking this device...");
   const [busy, setBusy] = useState(false);
+  const [selectedTopics, setSelectedTopics] = useState<AlertTopic[]>(defaultTopics);
 
   useEffect(() => {
     async function checkSupport() {
@@ -83,6 +95,17 @@ export function PushNotificationSettings() {
       }
 
       if (existingSubscription) {
+        const preferencesResponse = await fetch("/api/push/preferences", {
+          body: JSON.stringify({ endpoint: existingSubscription.endpoint }),
+          headers: { "Content-Type": "application/json" },
+          method: "POST"
+        });
+
+        if (preferencesResponse.ok) {
+          const preferences = (await preferencesResponse.json()) as { topics: AlertTopic[] };
+          setSelectedTopics(preferences.topics.filter((topic) => defaultTopics.includes(topic)));
+        }
+
         setStatus("subscribed");
         setMessage("VGK push alerts are enabled on this device.");
       } else {
@@ -124,7 +147,7 @@ export function PushNotificationSettings() {
       const response = await fetch("/api/push/subscribe", {
         body: JSON.stringify({
           subscription,
-          topics: ["vgk-updates", "game-start", "final-score", "articles", "breaking-news"]
+          topics: selectedTopics
         }),
         headers: {
           "Content-Type": "application/json"
@@ -165,6 +188,7 @@ export function PushNotificationSettings() {
 
       setStatus("ready");
       setMessage("Push alerts are off on this device.");
+      setSelectedTopics(defaultTopics);
     } catch {
       setStatus("error");
       setMessage("Could not turn off push alerts. Try again.");
@@ -192,9 +216,52 @@ export function PushNotificationSettings() {
     }
   }
 
+  async function toggleTopic(topic: AlertTopic) {
+    const nextTopics = selectedTopics.includes(topic)
+      ? selectedTopics.filter((selectedTopic) => selectedTopic !== topic)
+      : [...selectedTopics, topic];
+
+    setSelectedTopics(nextTopics);
+
+    if (status !== "subscribed") {
+      return;
+    }
+
+    try {
+      const registration = await getReadyServiceWorker();
+      const subscription = await registration.pushManager.getSubscription();
+
+      if (!subscription) {
+        setStatus("ready");
+        setMessage("Enable alerts before choosing alert types.");
+        return;
+      }
+
+      const response = await fetch("/api/push/preferences", {
+        body: JSON.stringify({
+          subscription,
+          topics: nextTopics
+        }),
+        headers: { "Content-Type": "application/json" },
+        method: "PATCH"
+      });
+
+      if (!response.ok) {
+        throw new Error("Preference update failed.");
+      }
+
+      setMessage(nextTopics.length ? "Alert preferences updated." : "All alert types are turned off.");
+    } catch {
+      setSelectedTopics(selectedTopics);
+      setStatus("error");
+      setMessage("Could not update alert preferences. Try again.");
+    }
+  }
+
   const canEnable = status === "ready" || status === "error";
   const canTest = status === "subscribed";
   const canDisable = status === "subscribed";
+  const canEditTopics = status === "subscribed" && !busy;
 
   return (
     <section className="panel p-6 md:p-8">
@@ -240,6 +307,52 @@ export function PushNotificationSettings() {
           Turn Off
         </button>
       </div>
+
+      <section className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <div>
+          <p className="text-sm font-bold text-white">Choose Alert Types</p>
+          <p className="mt-2 text-sm leading-6 text-mist">
+            Pick which notifications this device receives.
+          </p>
+        </div>
+
+        <div className="mt-5 grid gap-3">
+          {alertTopics.map((topic) => {
+            const checked = selectedTopics.includes(topic.value);
+
+            return (
+              <button
+                key={topic.value}
+                type="button"
+                disabled={!canEditTopics}
+                onClick={() => toggleTopic(topic.value)}
+                className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-black/20 p-4 text-left transition hover:border-gold/30 disabled:cursor-not-allowed disabled:opacity-55"
+              >
+                <span>
+                  <span className="block text-sm font-bold text-white">{topic.label}</span>
+                  <span className="mt-1 block text-xs leading-5 text-mist">{topic.description}</span>
+                </span>
+                <span
+                  aria-hidden="true"
+                  className={
+                    checked
+                      ? "flex h-8 w-14 shrink-0 items-center rounded-full bg-gold p-1 transition"
+                      : "flex h-8 w-14 shrink-0 items-center rounded-full bg-white/15 p-1 transition"
+                  }
+                >
+                  <span
+                    className={
+                      checked
+                        ? "h-6 w-6 translate-x-6 rounded-full bg-ink transition"
+                        : "h-6 w-6 translate-x-0 rounded-full bg-white transition"
+                    }
+                  />
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
     </section>
   );
 }

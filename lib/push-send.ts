@@ -11,6 +11,7 @@ export type PushPayload = {
   icon?: string;
   tag?: string;
   title: string;
+  topic?: string;
   url?: string;
 };
 
@@ -21,7 +22,13 @@ export async function sendPushNotification(payload: PushPayload) {
 
   configureWebPush();
 
-  const subscriptions = await getPushSubscriptions();
+  const subscriptions = (await getPushSubscriptions()).filter((record) => {
+    if (!payload.topic) {
+      return true;
+    }
+
+    return record.topics.includes(payload.topic);
+  });
   const normalizedPayload = JSON.stringify({
     badge: "/pwa-icon-180.png",
     icon: "/pwa-icon-192.png",

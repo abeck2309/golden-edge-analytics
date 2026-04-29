@@ -98,6 +98,16 @@ export async function getPushSubscriptions() {
   return records.filter((record): record is PushSubscriptionRecord => Boolean(record));
 }
 
+export async function getPushSubscriptionByEndpoint(endpoint: string) {
+  const redis = getRedis();
+
+  if (!redis) {
+    return memorySubscriptions.get(endpoint) ?? null;
+  }
+
+  return redis.get<PushSubscriptionRecord>(recordKey(endpoint));
+}
+
 export async function getPushSubscriptionCount() {
   const redis = getRedis();
 

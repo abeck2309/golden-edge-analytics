@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     },
     tag: body.tag?.trim() || "golden-edge-custom",
     title: body.title.trim(),
+    topic: "vgk-news",
     url: body.url?.trim() || "/vgk-updates"
   });
 

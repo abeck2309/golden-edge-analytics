@@ -8,10 +8,15 @@ export default function NotificationsPage() {
 
       <section className="mt-6 rounded-2xl border border-gold/20 bg-gold/10 p-5">
         <p className="text-sm font-semibold text-gold-bright">iPhone setup</p>
-        <p className="mt-2 text-sm leading-6 text-mist">
-          On iPhone, open Golden Edge in Safari, tap Share, choose Add to Home Screen, then open the
-          installed app icon and enable alerts from this page.
-        </p>
+        <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm leading-6 text-mist">
+          <li>Go to https://goldenedgeanalytics.vercel.app</li>
+          <li>Tap Share.</li>
+          <li>Tap Add to Home Screen.</li>
+          <li>Open the new Golden Edge icon.</li>
+          <li>Go to Alerts.</li>
+          <li>Enable alerts.</li>
+          <li>Hit Send Test.</li>
+        </ol>
       </section>
     </Container>
   );

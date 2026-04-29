@@ -18,6 +18,7 @@ type AutomatedCandidate = {
   key: string;
   tag: string;
   title: string;
+  topic: "game-start" | "goals" | "final-score";
   type: "game-start" | "goal" | "final-score";
   url: string;
 };
@@ -54,6 +55,7 @@ function buildGameStartCandidate(game: VgkScheduleAlertGame, now: number): Autom
       key: `game-start:${game.id}`,
       tag: `vgk-game-start-${game.id}`,
       title: "VGK Game Starting",
+      topic: "game-start",
       type: "game-start",
       url: "/vgk-updates"
     };
@@ -73,6 +75,7 @@ function buildFinalScoreCandidate(game: VgkScheduleAlertGame, now: number): Auto
       key: `final-score:${game.id}`,
       tag: `vgk-final-score-${game.id}`,
       title: "VGK Final Score",
+      topic: "final-score",
       type: "final-score",
       url: "/vgk-updates"
     };
@@ -93,6 +96,7 @@ async function buildGoalCandidates(game: VgkScheduleAlertGame, now: number) {
     key: `goal:${game.id}:${goal.eventId}`,
     tag: `vgk-goal-${game.id}-${goal.eventId}`,
     title: goal.title,
+    topic: "goals",
     type: "goal",
     url: "/vgk-updates"
   }));
@@ -128,6 +132,7 @@ export async function GET(request: Request) {
       },
       tag: candidate.tag,
       title: candidate.title,
+      topic: candidate.topic,
       url: candidate.url
     });
 
