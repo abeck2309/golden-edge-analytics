@@ -8,11 +8,22 @@ export function PwaServiceWorker() {
       return;
     }
 
-    window.addEventListener("load", () => {
+    function registerServiceWorker() {
       navigator.serviceWorker.register("/sw.js").catch((error) => {
         console.warn("Golden Edge service worker registration failed", error);
       });
-    });
+    }
+
+    if (document.readyState === "complete") {
+      registerServiceWorker();
+      return;
+    }
+
+    window.addEventListener("load", registerServiceWorker, { once: true });
+
+    return () => {
+      window.removeEventListener("load", registerServiceWorker);
+    };
   }, []);
 
   return null;

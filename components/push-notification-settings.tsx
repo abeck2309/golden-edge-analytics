@@ -34,6 +34,15 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
+async function getReadyServiceWorker() {
+  return Promise.race([
+    navigator.serviceWorker.ready,
+    new Promise<never>((_, reject) => {
+      window.setTimeout(() => reject(new Error("Service worker registration timed out.")), 8000);
+    })
+  ]);
+}
+
 export function PushNotificationSettings() {
   const [status, setStatus] = useState<PushStatus>("checking");
   const [message, setMessage] = useState("Checking this device...");
@@ -64,7 +73,7 @@ export function PushNotificationSettings() {
         return;
       }
 
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await getReadyServiceWorker();
       const existingSubscription = await registration.pushManager.getSubscription();
 
       if (Notification.permission === "denied") {
@@ -104,7 +113,7 @@ export function PushNotificationSettings() {
 
       const keyResponse = await fetch("/api/push/public-key");
       const keyData = (await keyResponse.json()) as { publicKey: string };
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await getReadyServiceWorker();
       const subscription =
         (await registration.pushManager.getSubscription()) ??
         (await registration.pushManager.subscribe({
@@ -142,7 +151,7 @@ export function PushNotificationSettings() {
     setBusy(true);
 
     try {
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await getReadyServiceWorker();
       const subscription = await registration.pushManager.getSubscription();
 
       if (subscription) {
