@@ -59,3 +59,152 @@ iframe:focus-visible {
   user-select: none;
   pointer-events: none;
 }
+
+.splash-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(216, 188, 122, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(216, 188, 122, 0.08) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(circle at center, black, transparent 68%);
+  opacity: 0;
+  animation: splash-grid-in 1.7s ease forwards;
+}
+
+.splash-sweep {
+  position: absolute;
+  inset: -40% -20%;
+  background: linear-gradient(115deg, transparent 40%, rgba(216, 188, 122, 0.28), transparent 58%);
+  transform: translateX(-38%) rotate(3deg);
+  animation: splash-sweep 1.55s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.splash-glow {
+  position: absolute;
+  width: min(64vw, 520px);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgba(216, 188, 122, 0.22), transparent 58%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.08), transparent 34%);
+  filter: blur(4px);
+  transform: scale(0.65);
+  opacity: 0;
+  animation: splash-glow-pulse 1.7s ease forwards;
+}
+
+.splash-logo-shell {
+  position: relative;
+  transform: translateY(10px) scale(0.82);
+  opacity: 0;
+  animation: splash-logo-pop 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.18s forwards;
+}
+
+.splash-logo-shell::after {
+  content: "";
+  position: absolute;
+  inset: -16px;
+  border: 1px solid rgba(216, 188, 122, 0.3);
+  border-radius: 38px;
+  transform: scale(0.7) rotate(0deg);
+  opacity: 0;
+  animation: splash-ring 1.4s ease 0.25s forwards;
+}
+
+.splash-title {
+  transform: translateY(100%);
+  animation: splash-text-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
+}
+
+.splash-subtitle {
+  transform: translateY(100%);
+  animation: splash-text-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.7s forwards;
+}
+
+.splash-loader {
+  width: 100%;
+  transform: translateX(-100%);
+  box-shadow: 0 0 18px rgba(216, 188, 122, 0.75);
+  animation: splash-load 1.55s cubic-bezier(0.65, 0, 0.35, 1) 0.35s forwards;
+}
+
+@keyframes splash-grid-in {
+  0% {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+  100% {
+    opacity: 0.38;
+    transform: scale(1);
+  }
+}
+
+@keyframes splash-sweep {
+  0% {
+    transform: translateX(-38%) rotate(3deg);
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(38%) rotate(3deg);
+    opacity: 0;
+  }
+}
+
+@keyframes splash-glow-pulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+  45% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.62;
+    transform: scale(1);
+  }
+}
+
+@keyframes splash-logo-pop {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.82);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(0) scale(1.04);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes splash-ring {
+  0% {
+    opacity: 0;
+    transform: scale(0.7) rotate(0deg);
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.18) rotate(8deg);
+  }
+}
+
+@keyframes splash-text-up {
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes splash-load {
+  to {
+    transform: translateX(0);
+  }
+}

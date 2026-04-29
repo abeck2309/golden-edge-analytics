@@ -4,6 +4,7 @@ import "./globals.css";
 import { PwaServiceWorker } from "@/components/pwa-service-worker";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { SplashScreen } from "@/components/splash-screen";
 import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -53,6 +54,7 @@ export default function RootLayout({
         </div>
         <Analytics />
         <PwaServiceWorker />
+        <SplashScreen />
       </body>
     </html>
   );
