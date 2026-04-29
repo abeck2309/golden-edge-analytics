@@ -55,6 +55,7 @@ export const siteConfig = {
     { href: "/podcasts", label: "Podcasts" },
     { href: "/quizzes", label: "Quizzes" },
     { href: "/coming-soon", label: "Coming Soon" },
+    { href: "/notifications", label: "Alerts" },
     { href: "/about", label: "About" }
   ] satisfies NavItem[],
   projects: [

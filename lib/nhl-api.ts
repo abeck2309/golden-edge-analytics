@@ -621,6 +621,62 @@ export async function getVgkGameDetail(gameId: number) {
   };
 }
 
+export async function getVgkScheduleForAlerts() {
+  const schedule = await nhlApiFetch<ScheduleResponse>(nhlEndpoints.schedule);
+
+  return schedule.games.map((game) => {
+    const side = getVgkSide(game);
+    const opponent = getOpponent(game);
+    const otherSide = side === "away" ? "home" : "away";
+
+    return {
+      id: game.id,
+      date: game.startTimeUTC ?? game.gameDate,
+      gameDate: game.gameDate,
+      gameState: game.gameState,
+      gameScheduleState: game.gameScheduleState,
+      gameType: game.gameType,
+      gameTypeLabel: getGameTypeLabel(game.gameType),
+      homeAway: side === "home" ? "Home" : "Away",
+      opponent: opponent.abbrev,
+      opponentName: displayTeamName(opponent),
+      awayTeam: {
+        abbrev: game.awayTeam.abbrev,
+        id: game.awayTeam.id
+      },
+      homeTeam: {
+        abbrev: game.homeTeam.abbrev,
+        id: game.homeTeam.id
+      },
+      vgkScore: scoreFor(game, side),
+      opponentScore: scoreFor(game, otherSide),
+      score: `${VGK_ABBREV} ${scoreFor(game, side)}, ${opponent.abbrev} ${scoreFor(game, otherSide)}`
+    };
+  });
+}
+
+export async function getVgkGoalAlertsForGame(gameId: number) {
+  const [boxscore, playByPlay] = await Promise.all([
+    nhlApiFetch<GameBoxscore>(nhlEndpoints.boxscore(gameId)),
+    nhlApiFetch<GamePlayByPlay>(nhlEndpoints.playByPlay(gameId))
+  ]);
+
+  return scoringBreakdown(playByPlay, boxscore).map((goal) => {
+    const isVgkGoal = goal.teamAbbrev === VGK_ABBREV;
+    const opponent =
+      boxscore.awayTeam.abbrev === VGK_ABBREV ? boxscore.homeTeam.abbrev : boxscore.awayTeam.abbrev;
+
+    return {
+      ...goal,
+      gameId,
+      isVgkGoal,
+      opponent,
+      title: isVgkGoal ? "VGK Goal" : `${goal.teamAbbrev} Goal`,
+      body: `${goal.scorer} (${goal.scorerTotal}) scores. ${VGK_ABBREV} vs ${opponent}: ${goal.score}`
+    };
+  });
+}
+
 export async function getVgkUpdates() {
   const schedule = await nhlApiFetch<ScheduleResponse>(nhlEndpoints.schedule);
   const currentSeason = schedule.games[0]?.season ?? new Date().getFullYear();
@@ -695,20 +751,12 @@ export async function getVgkUpdates() {
         vgkScore: scoreFor(game, side),
         opponentScore: scoreFor(game, otherSide)
       };
-    }),
-    endpoints: {
-      schedule: nhlEndpoints.schedule,
-      standings: nhlEndpoints.standings,
-      roster: nhlEndpoints.roster,
-      regularSeasonStats: nhlEndpoints.clubStats(currentSeason, 2),
-      playoffStats: nhlEndpoints.clubStats(currentSeason, 3),
-      boxscore: nhlEndpoints.boxscore(latestScheduleGame.id),
-      gameRightRail: nhlEndpoints.gameRightRail(latestScheduleGame.id),
-      playByPlay: nhlEndpoints.playByPlay(latestScheduleGame.id)
-    }
+    })
   };
 }
 
 export type VgkGameDetail = Awaited<ReturnType<typeof getVgkGameDetail>>;
+export type VgkGoalAlert = Awaited<ReturnType<typeof getVgkGoalAlertsForGame>>[number];
+export type VgkScheduleAlertGame = Awaited<ReturnType<typeof getVgkScheduleForAlerts>>[number];
 export type VgkPlayerCardData = Awaited<ReturnType<typeof getVgkPlayerCard>>;
 export type VgkUpdatesData = Awaited<ReturnType<typeof getVgkUpdates>>;

@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "Golden Edge Analytics",
+    "slug": "golden-edge-analytics",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "goldenedge",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#070707"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.goldenedgeanalytics.app",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.goldenedgeanalytics.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#070707"
+      },
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ]
+    },
+    "plugins": [
+      "expo-notifications",
+      "expo-splash-screen"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2b54b7e8-cc70-4733-8e23-cf4cf21dd587"
+      }
+    },
+    "owner": "abeck2309"
+  }
+}

@@ -535,12 +535,11 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
             <h1 className="mt-3 font-[family-name:var(--font-heading)] text-4xl font-bold tracking-tight text-white md:text-6xl">
               Golden Knights Live Dashboard
             </h1>
-            <p className="mt-4 max-w-3xl text-sm leading-7 text-mist md:text-base">
-              Current Vegas schedule, standings, game details, and leader data from the modern NHL
-              API.
+            <p className="mt-4 max-w-4xl whitespace-nowrap text-xs leading-7 text-mist md:text-sm lg:text-base">
+              1x Stanley Cup Champion, 2x Western Conference Champions, 5x Pacific Division Champions
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 lg:ml-6">
             <StatTile label="Record" value={data.overview.teamSnapshot?.record ?? "N/A"} />
             <StatTile label="Points" value={data.overview.teamSnapshot?.points ?? "N/A"} />
             <StatTile label="Division" value={data.overview.teamSnapshot?.standingsPosition ?? "N/A"} />
@@ -655,17 +654,6 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
               </button>
             );
           })}
-        </div>
-      </section>
-
-      <section className="mt-6 rounded-xl border border-white/10 bg-white/[0.02] p-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-mist">NHL API Endpoints Used</p>
-        <div className="mt-3 grid gap-2 text-xs text-mist md:grid-cols-2">
-          {Object.entries(data.endpoints).map(([label, endpoint]) => (
-            <p key={label} className="break-all">
-              <span className="font-semibold uppercase text-gold-bright">{label}:</span> {endpoint}
-            </p>
-          ))}
         </div>
       </section>
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import { PwaServiceWorker } from "@/components/pwa-service-worker";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { siteConfig } from "@/lib/site-config";
@@ -8,10 +9,26 @@ import { siteConfig } from "@/lib/site-config";
 export const metadata: Metadata = {
   title: siteConfig.title,
   description: siteConfig.description,
+  applicationName: "Golden Edge Analytics",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Golden Edge"
+  },
+  formatDetection: {
+    telephone: false
+  },
   icons: {
-    icon: "/icon.png",
-    shortcut: "/icon.png",
-    apple: "/icon.png"
+    icon: [
+      { url: "/favicon-32.png?v=2", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-192.png?v=2", sizes: "192x192", type: "image/png" }
+    ],
+    shortcut: "/favicon-32.png?v=2",
+    apple: "/pwa-icon-180.png"
+  },
+  other: {
+    "mobile-web-app-capable": "yes"
   }
 };
 
@@ -35,6 +52,7 @@ export default function RootLayout({
           <SiteFooter />
         </div>
         <Analytics />
+        <PwaServiceWorker />
       </body>
     </html>
   );
