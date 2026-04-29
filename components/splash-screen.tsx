@@ -4,22 +4,23 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export function SplashScreen() {
-  const [showSplash, setShowSplash] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setShowSplash(false);
       return;
     }
 
     const hasPlayed = sessionStorage.getItem("golden-edge-splash-played");
 
     if (hasPlayed) {
+      setShowSplash(false);
       return;
     }
 
     sessionStorage.setItem("golden-edge-splash-played", "true");
-    setShowSplash(true);
 
     const exitTimer = window.setTimeout(() => setIsExiting(true), 2100);
     const doneTimer = window.setTimeout(() => setShowSplash(false), 2650);
