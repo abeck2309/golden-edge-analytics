@@ -55,7 +55,7 @@ export function SplashScreen() {
           width={512}
           height={512}
           priority
-          className="h-52 w-52 object-contain drop-shadow-[0_0_42px_rgba(216,188,122,0.38)] sm:h-72 sm:w-72"
+          className="h-52 w-52 object-contain sm:h-72 sm:w-72"
         />
       </div>
     </div>
