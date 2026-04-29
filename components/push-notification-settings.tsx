@@ -207,7 +207,7 @@ export function PushNotificationSettings() {
         throw new Error("Test push failed.");
       }
 
-      setMessage("Test alert sent. It should arrive shortly.");
+      setMessage("Three test alerts sent. They should arrive shortly.");
     } catch {
       setStatus("error");
       setMessage("Could not send the test alert. Make sure push keys are configured.");
