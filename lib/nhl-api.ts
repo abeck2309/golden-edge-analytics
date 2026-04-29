@@ -25,6 +25,18 @@ type ScheduleGame = {
   gameScheduleState?: string;
   awayTeam: TeamInGame;
   homeTeam: TeamInGame;
+  gameOutcome?: {
+    lastPeriodType?: string;
+  };
+  periodDescriptor?: {
+    periodType: string;
+  };
+  seriesStatus?: {
+    bottomSeedWins: number;
+    gameNumberOfSeries: number;
+    neededToWin: number;
+    topSeedWins: number;
+  };
 };
 
 type ScheduleResponse = {
@@ -461,7 +473,9 @@ function scoringBreakdown(playByPlay: GamePlayByPlay, boxscore: GameBoxscore) {
           ...assist,
           playerId: index === 0 ? play.details?.assist1PlayerId : play.details?.assist2PlayerId
         })),
-        score: `${play.details?.awayScore ?? 0}-${play.details?.homeScore ?? 0}`
+        score: `${play.details?.awayScore ?? 0}-${play.details?.homeScore ?? 0}`,
+        awayScore: play.details?.awayScore ?? 0,
+        homeScore: play.details?.homeScore ?? 0
       };
     });
 }
@@ -623,6 +637,13 @@ export async function getVgkGameDetail(gameId: number) {
 
 export async function getVgkScheduleForAlerts() {
   const schedule = await nhlApiFetch<ScheduleResponse>(nhlEndpoints.schedule);
+  const standings = await nhlApiFetch<StandingsResponse>(nhlEndpoints.standings);
+  const recordsByTeam = new Map(
+    standings.standings.map((team) => [
+      team.teamAbbrev.default,
+      `${team.wins}-${team.losses}-${team.otLosses}`
+    ])
+  );
 
   return schedule.games.map((game) => {
     const side = getVgkSide(game);
@@ -637,17 +658,21 @@ export async function getVgkScheduleForAlerts() {
       gameScheduleState: game.gameScheduleState,
       gameType: game.gameType,
       gameTypeLabel: getGameTypeLabel(game.gameType),
+      lastPeriodType: game.gameOutcome?.lastPeriodType ?? game.periodDescriptor?.periodType ?? "REG",
       homeAway: side === "home" ? "Home" : "Away",
       opponent: opponent.abbrev,
       opponentName: displayTeamName(opponent),
       awayTeam: {
         abbrev: game.awayTeam.abbrev,
-        id: game.awayTeam.id
+        id: game.awayTeam.id,
+        record: recordsByTeam.get(game.awayTeam.abbrev) ?? "0-0-0"
       },
       homeTeam: {
         abbrev: game.homeTeam.abbrev,
-        id: game.homeTeam.id
+        id: game.homeTeam.id,
+        record: recordsByTeam.get(game.homeTeam.abbrev) ?? "0-0-0"
       },
+      seriesStatus: game.seriesStatus,
       vgkScore: scoreFor(game, side),
       opponentScore: scoreFor(game, otherSide),
       score: `${VGK_ABBREV} ${scoreFor(game, side)}, ${opponent.abbrev} ${scoreFor(game, otherSide)}`
@@ -665,14 +690,21 @@ export async function getVgkGoalAlertsForGame(gameId: number) {
     const isVgkGoal = goal.teamAbbrev === VGK_ABBREV;
     const opponent =
       boxscore.awayTeam.abbrev === VGK_ABBREV ? boxscore.homeTeam.abbrev : boxscore.awayTeam.abbrev;
+    const vgkScore = boxscore.awayTeam.abbrev === VGK_ABBREV ? goal.awayScore : goal.homeScore;
+    const opponentScore = boxscore.awayTeam.abbrev === VGK_ABBREV ? goal.homeScore : goal.awayScore;
+    const score = `${VGK_ABBREV} ${vgkScore} - ${opponent} ${opponentScore}`;
+    const assistText =
+      goal.assists.length > 0
+        ? `from ${goal.assists.map((assist) => `${assist.name} (${assist.total})`).join(", ")}`
+        : "unassisted";
 
     return {
       ...goal,
       gameId,
       isVgkGoal,
       opponent,
-      title: isVgkGoal ? "VGK Goal" : `${goal.teamAbbrev} Goal`,
-      body: `${goal.scorer} (${goal.scorerTotal}) scores. ${VGK_ABBREV} vs ${opponent}: ${goal.score}`
+      title: `${isVgkGoal ? "GOLDEN KNIGHTS" : goal.teamAbbrev} GOAL🚨, ${score}`,
+      body: `${goal.scorer} (${goal.scorerTotal}) ${assistText} @ ${goal.time} in game`
     };
   });
 }

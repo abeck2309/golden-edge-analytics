@@ -35,6 +35,40 @@ function isFinalState(game: VgkScheduleAlertGame) {
   return ["FINAL", "OFF"].includes(game.gameState);
 }
 
+function seriesText(game: VgkScheduleAlertGame) {
+  const status = game.seriesStatus;
+
+  if (!status) {
+    return "";
+  }
+
+  const topSeedIsHome = [1, 2, 5, 7].includes(status.gameNumberOfSeries);
+  const topSeed = topSeedIsHome ? game.homeTeam.abbrev : game.awayTeam.abbrev;
+  const bottomSeed = topSeedIsHome ? game.awayTeam.abbrev : game.homeTeam.abbrev;
+
+  if (status.topSeedWins === status.bottomSeedWins) {
+    return `(Series tied ${status.topSeedWins}-${status.bottomSeedWins})`;
+  }
+
+  const leader = status.topSeedWins > status.bottomSeedWins ? topSeed : bottomSeed;
+  const leaderWins = Math.max(status.topSeedWins, status.bottomSeedWins);
+  const trailingWins = Math.min(status.topSeedWins, status.bottomSeedWins);
+
+  return `(${leader} leads series ${leaderWins}-${trailingWins})`;
+}
+
+function gameStartText(game: VgkScheduleAlertGame) {
+  if (game.gameType === 3) {
+    return `${game.awayTeam.abbrev} @ ${game.homeTeam.abbrev} ${seriesText(game)}`.trim();
+  }
+
+  return `${game.awayTeam.abbrev} (${game.awayTeam.record}) @ ${game.homeTeam.abbrev} (${game.homeTeam.record})`;
+}
+
+function finalLabel(game: VgkScheduleAlertGame) {
+  return ["OT", "SO"].includes(game.lastPeriodType) ? `Final ${game.lastPeriodType}` : "Final";
+}
+
 function shouldCheckGoals(game: VgkScheduleAlertGame, now: number) {
   const sinceStart = now - gameStartTime(game);
 
@@ -47,14 +81,13 @@ function shouldCheckGoals(game: VgkScheduleAlertGame, now: number) {
 function buildGameStartCandidate(game: VgkScheduleAlertGame, now: number): AutomatedCandidate | null {
   const start = gameStartTime(game);
   const sinceStart = now - start;
-  const location = game.homeAway === "Home" ? "at home" : "on the road";
 
   if (sinceStart >= 0 && sinceStart <= START_ALERT_WINDOW) {
     return {
-      body: `VGK faces ${game.opponent} ${location}. Puck drop is scheduled now.`,
+      body: gameStartText(game),
       key: `game-start:${game.id}`,
       tag: `vgk-game-start-${game.id}`,
-      title: "VGK Game Starting",
+      title: "VGK Game Starting Now⚔️",
       topic: "game-start",
       type: "game-start",
       url: "/vgk-updates"
@@ -68,13 +101,13 @@ function buildFinalScoreCandidate(game: VgkScheduleAlertGame, now: number): Auto
   const sinceStart = now - gameStartTime(game);
 
   if (isFinalState(game) && sinceStart >= 0 && sinceStart <= TWELVE_HOURS) {
-    const result = game.vgkScore > game.opponentScore ? "win" : "fall";
+    const result = game.vgkScore > game.opponentScore ? "WIN🃏" : "LOSE🙅";
 
     return {
-      body: `Final: ${game.score}. VGK ${result} against ${game.opponent}.`,
+      body: "Tap to view the game details.",
       key: `final-score:${game.id}`,
       tag: `vgk-final-score-${game.id}`,
-      title: "VGK Final Score",
+      title: `${finalLabel(game)}: VGK ${result} ${game.score}`,
       topic: "final-score",
       type: "final-score",
       url: "/vgk-updates"
