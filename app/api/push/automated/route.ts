@@ -66,7 +66,7 @@ function gameStartText(game: VgkScheduleAlertGame) {
 }
 
 function finalLabel(game: VgkScheduleAlertGame) {
-  return ["OT", "SO"].includes(game.lastPeriodType) ? `Final ${game.lastPeriodType}` : "Final";
+  return ["OT", "SO"].includes(game.lastPeriodType) ? `Final (${game.lastPeriodType})` : "Final";
 }
 
 function shouldCheckGoals(game: VgkScheduleAlertGame, now: number) {

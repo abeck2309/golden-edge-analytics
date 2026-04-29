@@ -28,7 +28,7 @@ export async function POST() {
     {
       body: "Tap to view the game details.",
       tag: "golden-edge-test-final",
-      title: "Final OT: VGK WIN🃏 VGK 5 - UTA 4",
+      title: "Final (OT): VGK WIN🃏 VGK 5 - UTA 4",
       topic: "final-score"
     }
   ] as const;
