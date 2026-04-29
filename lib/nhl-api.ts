@@ -337,6 +337,21 @@ function isFutureGame(game: ScheduleGame) {
   return ["FUT", "PRE"].includes(game.gameState);
 }
 
+function isLiveGame(game: ScheduleGame) {
+  return ["LIVE", "CRIT"].includes(game.gameState);
+}
+
+function pacificDateKey(value: string | Date) {
+  const date = typeof value === "string" ? new Date(value) : value;
+
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Los_Angeles",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).format(date);
+}
+
 function getGameTypeLabel(gameType: number) {
   if (gameType === 1) return "Preseason";
   if (gameType === 3) return "Playoffs";
@@ -360,6 +375,25 @@ function gameResult(game: ScheduleGame) {
   const vgkScore = scoreFor(game, side);
   const opponentScore = scoreFor(game, side === "away" ? "home" : "away");
   return vgkScore > opponentScore ? "W" : "L";
+}
+
+function scoreLine(game: ScheduleGame) {
+  const side = getVgkSide(game);
+  const opponent = getOpponent(game);
+  const otherSide = side === "away" ? "home" : "away";
+
+  if (typeof game.awayTeam.score === "number" && typeof game.homeTeam.score === "number") {
+    return `${VGK_ABBREV} ${scoreFor(game, side)}, ${opponent.abbrev} ${scoreFor(game, otherSide)}`;
+  }
+
+  return side === "away" ? `${VGK_ABBREV} @ ${opponent.abbrev}` : `${opponent.abbrev} @ ${VGK_ABBREV}`;
+}
+
+function featuredGameLabel(game: ScheduleGame, isToday: boolean) {
+  if (isLiveGame(game)) return "Live Game";
+  if (isToday && isFutureGame(game)) return "Today's Game";
+  if (isCompletedGame(game)) return "Latest Game";
+  return "Next Game";
 }
 
 function collectSkaters(players?: TeamGamePlayers) {
@@ -737,6 +771,11 @@ export async function getVgkUpdates() {
   const completedGames = schedule.games.filter(isCompletedGame);
   const latestScheduleGame = completedGames.at(-1);
   const nextScheduleGame = schedule.games.find(isFutureGame);
+  const todayKey = pacificDateKey(new Date());
+  const todayScheduleGame = schedule.games.find((game) =>
+    pacificDateKey(game.startTimeUTC ?? game.gameDate) === todayKey
+  );
+  const featuredScheduleGame = todayScheduleGame ?? latestScheduleGame;
   const standing = standings.standings.find((team) => team.teamAbbrev.default === VGK_ABBREV);
   const rosterCount = (roster.forwards?.length ?? 0) + (roster.defensemen?.length ?? 0) + (roster.goalies?.length ?? 0);
 
@@ -746,13 +785,24 @@ export async function getVgkUpdates() {
 
   return {
     overview: {
+      featuredGame: featuredScheduleGame
+        ? {
+            id: featuredScheduleGame.id,
+            label: featuredGameLabel(featuredScheduleGame, featuredScheduleGame === todayScheduleGame),
+            status: featuredScheduleGame.gameScheduleState ?? featuredScheduleGame.gameState,
+            score: scoreLine(featuredScheduleGame),
+            opponent: displayTeamName(getOpponent(featuredScheduleGame)),
+            opponentAbbrev: getOpponent(featuredScheduleGame).abbrev,
+            date: featuredScheduleGame.startTimeUTC ?? featuredScheduleGame.gameDate,
+            homeAway: getVgkSide(featuredScheduleGame) === "home" ? "Home" : "Away",
+            isToday: featuredScheduleGame === todayScheduleGame,
+            isLive: isLiveGame(featuredScheduleGame)
+          }
+        : null,
       latestGame: {
         id: latestScheduleGame.id,
         result: gameResult(latestScheduleGame),
-        score: `${VGK_ABBREV} ${scoreFor(latestScheduleGame, getVgkSide(latestScheduleGame))}, ${getOpponent(latestScheduleGame).abbrev} ${scoreFor(
-          latestScheduleGame,
-          getVgkSide(latestScheduleGame) === "away" ? "home" : "away"
-        )}`,
+        score: scoreLine(latestScheduleGame),
         opponent: displayTeamName(getOpponent(latestScheduleGame)),
         date: latestScheduleGame.startTimeUTC ?? latestScheduleGame.gameDate
       },

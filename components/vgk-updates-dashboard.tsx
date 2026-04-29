@@ -434,7 +434,9 @@ function GameDetailPanel({
 }
 
 export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
-  const [selectedGameId, setSelectedGameId] = useState(data.games[0]?.id ?? null);
+  const [selectedGameId, setSelectedGameId] = useState<number | null>(
+    data.overview.featuredGame?.id ?? data.games[0]?.id ?? null
+  );
   const [detail, setDetail] = useState<VgkGameDetail | null>(null);
   const [detailError, setDetailError] = useState<string | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
@@ -450,11 +452,15 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
     if (gameTypeFilter === "playoffs") return data.games.filter((game) => game.gameType === 3);
     return data.games;
   }, [data.games, gameTypeFilter]);
+  const gameLogGames = data.overview.featuredGame?.isToday
+    ? filteredGames.filter((game) => game.id !== data.overview.featuredGame?.id)
+    : filteredGames;
 
   const selectedGame = useMemo(
     () => data.games.find((game) => game.id === selectedGameId) ?? null,
     [data.games, selectedGameId]
   );
+  const selectedFeaturedGame = data.overview.featuredGame?.id === selectedGameId ? data.overview.featuredGame : null;
 
   useEffect(() => {
     if (!selectedGameId) return;
@@ -543,7 +549,10 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
             <StatTile label="Record" value={data.overview.teamSnapshot?.record ?? "N/A"} />
             <StatTile label="Points" value={data.overview.teamSnapshot?.points ?? "N/A"} />
             <StatTile label="Division" value={data.overview.teamSnapshot?.standingsPosition ?? "N/A"} />
-            <StatTile label="Latest" value={data.overview.latestGame.score} />
+            <StatTile
+              label={data.overview.featuredGame?.label ?? "Latest Game"}
+              value={data.overview.featuredGame?.score ?? data.overview.latestGame.score}
+            />
           </div>
         </div>
       </section>
@@ -604,7 +613,11 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
               </div>
             </div>
           </div>
-          {selectedGame ? (
+          {selectedFeaturedGame ? (
+            <p className="text-sm text-mist">
+              Selected: {formatDate(selectedFeaturedGame.date)} vs {selectedFeaturedGame.opponentAbbrev}
+            </p>
+          ) : selectedGame ? (
             <p className="text-sm text-mist">
               Selected: {formatDate(selectedGame.date)} vs {selectedGame.opponent}
             </p>
@@ -612,7 +625,58 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {filteredGames.map((game) => {
+          {data.overview.featuredGame?.isToday ? (
+            <button
+              type="button"
+              onClick={() => setSelectedGameId(data.overview.featuredGame?.id ?? null)}
+              className={cn(
+                "rounded-xl border p-4 text-left transition-colors",
+                "border-gold/35 bg-gold/10 hover:border-gold/60 hover:bg-gold/15",
+                data.overview.featuredGame.id === selectedGameId && "border-gold/70 bg-gold/20"
+              )}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <Image
+                    src={logoSrc(data.overview.featuredGame.opponentAbbrev)}
+                    alt=""
+                    width={38}
+                    height={38}
+                    className="h-10 w-10 object-contain"
+                  />
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-bright">
+                      {data.overview.featuredGame.label}
+                    </p>
+                    <p className="font-bold text-white">{data.overview.featuredGame.opponentAbbrev}</p>
+                  </div>
+                </div>
+                <span className={cn("text-xs font-bold uppercase tracking-[0.16em]", data.overview.featuredGame.isLive ? "text-red-300" : "text-gold-bright")}>
+                  {data.overview.featuredGame.status}
+                </span>
+              </div>
+              <div className="mt-4 flex items-end justify-between gap-3">
+                <div>
+                  <p className="text-xs text-mist">
+                    {formatDate(data.overview.featuredGame.date, {
+                      month: "numeric",
+                      day: "numeric",
+                      hour: "numeric",
+                      minute: "2-digit"
+                    })}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-mist">
+                    {data.overview.featuredGame.homeAway}
+                  </p>
+                </div>
+                <p className="font-[family-name:var(--font-heading)] text-2xl font-bold text-white">
+                  {data.overview.featuredGame.score}
+                </p>
+              </div>
+            </button>
+          ) : null}
+
+          {gameLogGames.map((game) => {
             const isSelected = game.id === selectedGameId;
 
             return (
