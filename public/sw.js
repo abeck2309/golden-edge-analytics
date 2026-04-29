@@ -1,4 +1,5 @@
-const CACHE_NAME = "golden-edge-pwa-v1";
+const CACHE_NAME = "golden-edge-pwa-v2";
+const VGK_UPDATES_URL = "/vgk-updates";
 const APP_SHELL = [
   "/",
   "/offline.html",
@@ -73,7 +74,7 @@ self.addEventListener("push", (event) => {
     body: "New VGK update available.",
     icon: "/pwa-icon-192.png",
     badge: "/pwa-icon-180.png",
-    url: "/vgk-updates",
+    url: VGK_UPDATES_URL,
     tag: "golden-edge-update",
     data: {}
   };
@@ -103,13 +104,25 @@ self.addEventListener("push", (event) => {
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const targetUrl = new URL(event.notification.data?.url || "/", self.location.origin).href;
+  const targetUrl = new URL(event.notification.data?.url || VGK_UPDATES_URL, self.location.origin).href;
 
   event.waitUntil(
     self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
         if (client.url === targetUrl && "focus" in client) {
           return client.focus();
+        }
+      }
+
+      for (const client of clientList) {
+        if (new URL(client.url).origin === self.location.origin && "navigate" in client) {
+          return client.navigate(targetUrl).then((navigatedClient) => {
+            if (navigatedClient && "focus" in navigatedClient) {
+              return navigatedClient.focus();
+            }
+
+            return client.focus();
+          });
         }
       }
 
