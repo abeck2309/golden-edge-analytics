@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { VgkGameDetail, VgkPlayerCardData, VgkUpdatesData } from "@/lib/nhl-api";
 import { cn } from "@/lib/cn";
 
@@ -43,6 +43,26 @@ function detailScoreLine(detail: VgkGameDetail | null) {
   const opponent = detail.awayTeam.abbrev === "VGK" ? detail.homeTeam : detail.awayTeam;
 
   return `VGK ${vgkTeam.score}, ${opponent.abbrev} ${opponent.score}`;
+}
+
+type GoalEvent = VgkGameDetail["scoringByPeriod"][number]["goals"][number];
+
+function formatShotType(value?: string) {
+  if (!value) {
+    return "N/A";
+  }
+
+  return value
+    .split("-")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function formatZone(value?: string) {
+  if (value === "O") return "Offensive zone";
+  if (value === "D") return "Defensive zone";
+  if (value === "N") return "Neutral zone";
+  return value ?? "N/A";
 }
 
 function SectionCard({
@@ -249,11 +269,15 @@ function GameDetailPanel({
   detail,
   error,
   loading,
+  goalPopup,
+  onCloseGoalPopup,
   onOpenPlayer
 }: {
   detail: VgkGameDetail | null;
   error: string | null;
   loading: boolean;
+  goalPopup: GoalEvent | null;
+  onCloseGoalPopup: () => void;
   onOpenPlayer: (playerId: number) => void;
 }) {
   if (loading) {
@@ -288,6 +312,95 @@ function GameDetailPanel({
 
   return (
     <section className="panel overflow-hidden p-5 md:p-6">
+      {goalPopup ? (
+        <div className="mb-5 rounded-2xl border border-gold/40 bg-[#100d05]/95 p-4 shadow-[0_0_35px_rgba(216,188,122,0.18)]">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="flex gap-3">
+              <Image
+                src={logoSrc(goalPopup.teamAbbrev)}
+                alt=""
+                width={48}
+                height={48}
+                className="h-12 w-12 shrink-0 object-contain"
+              />
+              <div>
+                <p className="text-xs font-black uppercase tracking-[0.24em] text-gold-bright">
+                  Goal Alert
+                </p>
+                <h3 className="mt-1 font-[family-name:var(--font-heading)] text-2xl font-bold text-white">
+                  {goalPopup.teamAbbrev} Goal, {goalPopup.score}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-mist">
+                  <PlayerNameButton playerId={goalPopup.scorerPlayerId} onOpen={onOpenPlayer}>
+                    {goalPopup.scorer}
+                  </PlayerNameButton>{" "}
+                  scored goal #{goalPopup.scorerTotal} at {goalPopup.timeRemaining} remaining in {goalPopup.periodLabel}.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={onCloseGoalPopup}
+              className="w-fit rounded-full border border-white/15 px-3 py-1.5 text-xs font-bold text-mist hover:border-gold/40 hover:text-white"
+            >
+              Dismiss
+            </button>
+          </div>
+
+          <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Shot Type</p>
+              <p className="mt-1 font-bold text-white">{formatShotType(goalPopup.shotType)}</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Zone</p>
+              <p className="mt-1 font-bold text-white">{formatZone(goalPopup.zoneCode)}</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Against</p>
+              <p className="mt-1 font-bold text-white">{goalPopup.goalieName}</p>
+            </div>
+            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Location</p>
+              <p className="mt-1 font-bold text-white">
+                {typeof goalPopup.xCoord === "number" && typeof goalPopup.yCoord === "number"
+                  ? `x ${goalPopup.xCoord}, y ${goalPopup.yCoord}`
+                  : "N/A"}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 text-sm leading-6 text-mist">
+            {goalPopup.assists.length ? (
+              <>
+                Assisted by{" "}
+                {goalPopup.assists.map((assist, index) => (
+                  <span key={`${assist.playerId}-${assist.name}`}>
+                    {index > 0 ? ", " : ""}
+                    <PlayerNameButton playerId={assist.playerId} onOpen={onOpenPlayer}>
+                      {assist.name}
+                    </PlayerNameButton>{" "}
+                    ({assist.total})
+                  </span>
+                ))}
+              </>
+            ) : (
+              "Unassisted goal."
+            )}
+            {goalPopup.highlightUrl ? (
+              <a
+                href={goalPopup.highlightUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="ml-2 font-semibold text-gold-bright underline decoration-gold/40 underline-offset-4"
+              >
+                Watch highlight
+              </a>
+            ) : null}
+          </div>
+        </div>
+      ) : null}
+
       <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
         <div className="flex items-center gap-4">
           <Image src={logoSrc(detail.awayTeam.abbrev)} alt="" width={74} height={74} className="h-16 w-16 object-contain md:h-20 md:w-20" />
@@ -457,6 +570,9 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
   const [playerCard, setPlayerCard] = useState<VgkPlayerCardData | null>(null);
   const [playerError, setPlayerError] = useState<string | null>(null);
   const [playerLoading, setPlayerLoading] = useState(false);
+  const [goalPopup, setGoalPopup] = useState<GoalEvent | null>(null);
+  const seenGoalIds = useRef<Set<number> | null>(null);
+  const goalPopupTimer = useRef<number | null>(null);
 
   const filteredGames = useMemo(() => {
     if (gameTypeFilter === "preseason") return currentData.games.filter((game) => game.gameType === 1);
@@ -525,6 +641,8 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
 
     let isCurrent = true;
     let refreshTimer: number | null = null;
+    seenGoalIds.current = null;
+    setGoalPopup(null);
 
     function loadGameDetail(showLoading: boolean) {
       if (showLoading) {
@@ -540,7 +658,35 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
           return response.json() as Promise<VgkGameDetail>;
         })
         .then((gameDetail) => {
-          if (isCurrent) setDetail(gameDetail);
+          if (isCurrent) {
+            setDetail(gameDetail);
+
+            const goals = gameDetail.scoringByPeriod.flatMap((period) => period.goals);
+            const goalIds = new Set(goals.map((goal) => goal.eventId));
+
+            if (!seenGoalIds.current || gameDetail.id !== selectedGameId) {
+              seenGoalIds.current = goalIds;
+              return;
+            }
+
+            const newGoals = goals.filter((goal) => !seenGoalIds.current?.has(goal.eventId));
+
+            seenGoalIds.current = goalIds;
+
+            if (newGoals.length) {
+              const latestGoal = newGoals.at(-1) ?? null;
+              setGoalPopup(latestGoal);
+
+              if (goalPopupTimer.current) {
+                window.clearTimeout(goalPopupTimer.current);
+              }
+
+              goalPopupTimer.current = window.setTimeout(() => {
+                setGoalPopup(null);
+                goalPopupTimer.current = null;
+              }, 15000);
+            }
+          }
         })
         .catch((error: Error) => {
           if (isCurrent) {
@@ -560,6 +706,10 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
       isCurrent = false;
       if (refreshTimer) {
         window.clearInterval(refreshTimer);
+      }
+      if (goalPopupTimer.current) {
+        window.clearTimeout(goalPopupTimer.current);
+        goalPopupTimer.current = null;
       }
     };
   }, [selectedGameId]);
@@ -646,7 +796,9 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
         <GameDetailPanel
           detail={detail}
           error={detailError}
+          goalPopup={goalPopup}
           loading={detailLoading}
+          onCloseGoalPopup={() => setGoalPopup(null)}
           onOpenPlayer={setSelectedPlayerId}
         />
       </div>

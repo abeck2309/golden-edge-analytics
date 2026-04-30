@@ -150,6 +150,10 @@ type GoalPlay = {
   timeRemaining?: string;
   typeDescKey: string;
   details?: {
+    xCoord?: number;
+    yCoord?: number;
+    zoneCode?: string;
+    shotType?: string;
     scoringPlayerId?: number;
     scoringPlayerTotal?: number;
     assist1PlayerId?: number;
@@ -157,8 +161,10 @@ type GoalPlay = {
     assist2PlayerId?: number;
     assist2PlayerTotal?: number;
     eventOwnerTeamId?: number;
+    goalieInNetId?: number;
     awayScore?: number;
     homeScore?: number;
+    highlightClipSharingUrl?: string;
   };
 };
 
@@ -515,6 +521,13 @@ function scoringBreakdown(playByPlay: GamePlayByPlay, boxscore: GameBoxscore) {
         scorerPlayerId: play.details?.scoringPlayerId,
         scorer: playerName(play.details?.scoringPlayerId, rosterById),
         scorerTotal: play.details?.scoringPlayerTotal ?? 0,
+        shotType: play.details?.shotType,
+        zoneCode: play.details?.zoneCode,
+        xCoord: play.details?.xCoord,
+        yCoord: play.details?.yCoord,
+        goaliePlayerId: play.details?.goalieInNetId,
+        goalieName: playerName(play.details?.goalieInNetId, rosterById),
+        highlightUrl: play.details?.highlightClipSharingUrl,
         assists: assists.map((assist, index) => ({
           ...assist,
           playerId: index === 0 ? play.details?.assist1PlayerId : play.details?.assist2PlayerId
