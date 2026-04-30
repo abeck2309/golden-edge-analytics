@@ -309,9 +309,6 @@ function GoalLocationRink({ goal }: { goal: GoalEvent }) {
           filter={`url(#goal-glow-${goal.eventId})`}
         />
       </svg>
-      <p className="mt-2 text-xs text-mist">
-        {hasCoordinates ? "Shot location plotted on the attacking half of the rink." : "Location unavailable from NHL play data."}
-      </p>
     </div>
   );
 }
