@@ -463,12 +463,25 @@ function goalieSummary(players?: TeamGamePlayers) {
 }
 
 function periodKey(period: { number: number; periodType: string }) {
-  return period.periodType === "REG" ? String(period.number) : period.periodType;
+  return period.periodType === "REG" ? String(period.number) : `${period.periodType}-${period.number}`;
+}
+
+function overtimePeriodLabel(period: { number: number; periodType: string }) {
+  if (period.periodType !== "OT") {
+    return period.periodType;
+  }
+
+  const overtimeNumber = Math.max(period.number - 3, 1);
+  return overtimeNumber === 1 ? "OT" : `${overtimeNumber}OT`;
+}
+
+function periodScoreLabel(period: { number: number; periodType: string }) {
+  return period.periodType === "REG" ? String(period.number) : overtimePeriodLabel(period);
 }
 
 function ordinalPeriod(period: { number: number; periodType: string }) {
   if (period.periodType !== "REG") {
-    return period.periodType;
+    return overtimePeriodLabel(period);
   }
 
   if (period.number === 1) return "1st period";
@@ -657,6 +670,7 @@ export async function getVgkGameDetail(gameId: number) {
 
   const side = getVgkSide(boxscore);
   const players = side === "away" ? boxscore.playerByGameStats?.awayTeam : boxscore.playerByGameStats?.homeTeam;
+  const goals = scoringBreakdown(playByPlay, boxscore);
 
   return {
     id: boxscore.id,
@@ -685,10 +699,10 @@ export async function getVgkGameDetail(gameId: number) {
       const key = periodKey(period.periodDescriptor);
 
       return {
-        period: key,
+        period: periodScoreLabel(period.periodDescriptor),
         away: period.away,
         home: period.home,
-        goals: scoringBreakdown(playByPlay, boxscore).filter((goal) => goal.period === key)
+        goals: goals.filter((goal) => goal.period === key)
       };
     }) ?? []
   };
