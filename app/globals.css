@@ -80,7 +80,8 @@ iframe:focus-visible {
 }
 
 .splash-outline-image,
-.splash-outline-glow {
+.splash-outline-glow-window,
+.splash-outline-glow-image {
   position: absolute;
   inset: 0;
   height: 100%;
@@ -93,30 +94,31 @@ iframe:focus-visible {
   filter: drop-shadow(0 0 10px rgba(255, 213, 89, 0.34));
 }
 
-.splash-outline-glow {
-  background:
-    linear-gradient(
-      180deg,
-      rgba(255, 255, 236, 1) 0%,
-      rgba(255, 229, 115, 1) 28%,
-      rgba(255, 190, 28, 1) 58%,
-      rgba(255, 142, 0, 0.96) 100%
-    );
-  filter:
-    drop-shadow(0 0 7px rgba(255, 246, 188, 1))
-    drop-shadow(0 0 18px rgba(255, 205, 54, 0.98))
-    drop-shadow(0 0 42px rgba(255, 174, 0, 0.82))
-    drop-shadow(0 0 88px rgba(255, 174, 0, 0.46));
-  mask-image: url("/vgk-outline.png");
-  mask-repeat: no-repeat;
-  mask-position: center;
-  mask-size: contain;
-  -webkit-mask-image: url("/vgk-outline.png");
-  -webkit-mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  -webkit-mask-size: contain;
+.splash-outline-glow-window {
   clip-path: inset(100% 0 0 0);
   animation: splash-outline-rise 3.7s cubic-bezier(0.22, 0.75, 0.24, 1) forwards;
+  will-change: clip-path;
+}
+
+.splash-outline-glow-image {
+  object-fit: contain;
+  filter:
+    brightness(1.95)
+    saturate(2.1)
+    drop-shadow(0 0 8px rgba(255, 246, 188, 0.95))
+    drop-shadow(0 0 20px rgba(255, 205, 54, 0.82))
+    drop-shadow(0 0 36px rgba(255, 174, 0, 0.48));
+  opacity: 1;
+}
+
+@supports (-webkit-touch-callout: none) {
+  .splash-outline-glow-image {
+    filter:
+      brightness(1.8)
+      saturate(1.85)
+      drop-shadow(0 0 8px rgba(255, 220, 86, 0.88))
+      drop-shadow(0 0 18px rgba(255, 174, 0, 0.48));
+  }
 }
 
 @keyframes splash-outline-rise {

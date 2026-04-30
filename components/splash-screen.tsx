@@ -52,7 +52,16 @@ export function SplashScreen() {
           priority
           className="splash-outline-image"
         />
-        <div className="splash-outline-glow" />
+        <div className="splash-outline-glow-window">
+          <Image
+            src="/vgk-outline.png"
+            alt=""
+            width={512}
+            height={512}
+            priority
+            className="splash-outline-glow-image"
+          />
+        </div>
       </div>
     </div>
   );
