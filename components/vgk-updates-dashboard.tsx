@@ -662,9 +662,9 @@ function GameDetailPanel({
                             onClick={() => onOpenGoalPopup(goal)}
                             aria-label={`Open goal details for ${goal.scorer}`}
                             title="Goal details"
-                            className="grid h-5 w-5 place-items-center rounded-full border border-gold/40 bg-gold/10 text-[12px] font-black leading-none text-gold-bright transition hover:border-gold hover:bg-gold/20 hover:text-white"
+                            className="flex h-5 w-5 items-center justify-center rounded-full border border-gold/40 bg-gold/10 text-gold-bright transition hover:border-gold hover:bg-gold/20 hover:text-white"
                           >
-                            +
+                            <span className="-mt-px text-[13px] font-black leading-none">+</span>
                           </button>
                           {goal.highlightUrl ? (
                             <a
@@ -673,9 +673,9 @@ function GameDetailPanel({
                               rel="noreferrer"
                               aria-label={`Watch highlight for ${goal.scorer}`}
                               title="Watch highlight"
-                              className="grid h-5 w-5 place-items-center rounded-full border border-white/15 bg-white/[0.04] text-[9px] font-black leading-none text-white transition hover:border-gold/50 hover:bg-gold/15"
+                              className="flex h-5 w-5 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-white transition hover:border-gold/50 hover:bg-gold/15"
                             >
-                              &#9654;
+                              <span className="ml-[1px] text-[9px] font-black leading-none">&#9654;</span>
                             </a>
                           ) : (
                             <button
@@ -683,9 +683,9 @@ function GameDetailPanel({
                               disabled
                               aria-label={`No highlight available for ${goal.scorer}`}
                               title="No highlight available"
-                              className="grid h-5 w-5 cursor-not-allowed place-items-center rounded-full border border-white/10 bg-white/[0.02] text-[9px] font-black leading-none text-mist/40"
+                              className="flex h-5 w-5 cursor-not-allowed items-center justify-center rounded-full border border-white/10 bg-white/[0.02] text-mist/40"
                             >
-                              &#9654;
+                              <span className="ml-[1px] text-[9px] font-black leading-none">&#9654;</span>
                             </button>
                           )}
                         </div>
