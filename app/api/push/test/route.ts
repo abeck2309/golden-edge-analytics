@@ -4,6 +4,8 @@ import { getPushStorageMode } from "@/lib/push-subscriptions";
 import { sendPushNotification } from "@/lib/push-send";
 import { isWebPushConfigured } from "@/lib/web-push";
 
+const LIVE_GAME_URL = "/vgk-updates#live-game";
+
 export async function POST() {
   if (!isWebPushConfigured()) {
     return NextResponse.json(
@@ -44,7 +46,7 @@ export async function POST() {
         tag: example.tag,
         title: example.title,
         topic: example.topic,
-        url: "/vgk-updates"
+        url: example.topic === "goals" ? "/vgk-updates" : LIVE_GAME_URL
       })
     )
   );

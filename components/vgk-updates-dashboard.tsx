@@ -642,7 +642,7 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
         />
       </div>
 
-      <div className="mt-6">
+      <div id="live-game" className="mt-6 scroll-mt-28">
         <GameDetailPanel
           detail={detail}
           error={detailError}

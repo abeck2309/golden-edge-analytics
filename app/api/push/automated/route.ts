@@ -11,6 +11,7 @@ import {
 
 const START_ALERT_WINDOW = 10 * 60 * 1000;
 const TWELVE_HOURS = 12 * 60 * 60 * 1000;
+const LIVE_GAME_URL = "/vgk-updates#live-game";
 
 type AutomatedCandidate = {
   body: string;
@@ -89,7 +90,7 @@ function buildGameStartCandidate(game: VgkScheduleAlertGame, now: number): Autom
       title: "VGK Game Starting Now\u2694\uFE0F",
       topic: "game-start",
       type: "game-start",
-      url: "/vgk-updates"
+      url: LIVE_GAME_URL
     };
   }
 
@@ -109,7 +110,7 @@ function buildFinalScoreCandidate(game: VgkScheduleAlertGame, now: number): Auto
       title: `${finalLabel(game)}: VGK ${result} ${game.score}`,
       topic: "final-score",
       type: "final-score",
-      url: "/vgk-updates"
+      url: LIVE_GAME_URL
     };
   }
 
