@@ -428,14 +428,22 @@ function makeLeaders(clubStats: ClubStatsResponse) {
 }
 
 function teamStatsFor(rightRail: GameRightRail, game: GameBoxscore) {
+  function formatTeamStatValue(value: string | number) {
+    if (typeof value === "number") {
+      return Number.isInteger(value) ? value : value.toFixed(2);
+    }
+
+    return value.replace(/-?\d+\.\d+/g, (match) => Number(match).toFixed(2));
+  }
+
   return (rightRail.teamGameStats ?? []).map((stat) => ({
     category: stat.category,
     label: stat.category
       .replace(/Pctg$/, " %")
       .replace(/([A-Z])/g, " $1")
       .replace(/^./, (letter) => letter.toUpperCase()),
-    awayValue: stat.awayValue,
-    homeValue: stat.homeValue
+    awayValue: formatTeamStatValue(stat.awayValue),
+    homeValue: formatTeamStatValue(stat.homeValue)
   }));
 }
 
