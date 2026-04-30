@@ -74,8 +74,7 @@ iframe:focus-visible {
 
 .splash-star-pattern {
   position: absolute;
-  inset-block: 0;
-  width: 50%;
+  inset: 0;
   background-image:
     url("/star-three-points.png"),
     url("/star-three-points.png");
@@ -92,14 +91,14 @@ iframe:focus-visible {
 }
 
 .splash-star-pattern-left {
-  left: 0;
   opacity: 0.065;
+  clip-path: inset(0 50% 0 0);
 }
 
 .splash-star-pattern-right {
-  right: 0;
   opacity: 0.045;
   filter: invert(1);
+  clip-path: inset(0 0 0 50%);
 }
 
 .splash-outline-shell {
