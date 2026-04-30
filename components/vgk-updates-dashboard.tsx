@@ -245,6 +245,25 @@ function GoalLocationRink({ goal }: { goal: GoalEvent }) {
   return (
     <div className="rounded-xl border border-white/10 bg-black/20 p-3">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Goal Location</p>
+      <style jsx>{`
+        @keyframes goal-marker-pulse {
+          0%,
+          100% {
+            opacity: 0.45;
+            transform: scale(0.78);
+          }
+          50% {
+            opacity: 1;
+            transform: scale(1.55);
+          }
+        }
+
+        .goal-marker-pulse {
+          animation: goal-marker-pulse 1.45s ease-in-out infinite;
+          transform-box: fill-box;
+          transform-origin: center;
+        }
+      `}</style>
       <svg
         className="mt-3 block aspect-[1.85/1] w-full overflow-visible"
         viewBox="0 -42.5 100 85"
@@ -298,6 +317,14 @@ function GoalLocationRink({ goal }: { goal: GoalEvent }) {
           fill="none"
           stroke="#d8bc7a"
           strokeWidth="1.2"
+        />
+        <circle
+          cx={shotX}
+          cy={shotY}
+          r="5.2"
+          fill="#d8bc7a"
+          opacity="0.55"
+          className="goal-marker-pulse"
         />
         <circle
           cx={shotX}
