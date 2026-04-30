@@ -239,27 +239,78 @@ function PlayerStatSummary({
 
 function GoalLocationRink({ goal }: { goal: GoalEvent }) {
   const hasCoordinates = typeof goal.xCoord === "number" && typeof goal.yCoord === "number";
-  const shotX = hasCoordinates ? clamp(Math.abs(goal.xCoord ?? 0), 0, 100) : 72;
+  const shotX = hasCoordinates ? clamp(Math.abs(goal.xCoord ?? 0), 0, 100) : 69;
   const shotY = hasCoordinates ? clamp(goal.yCoord ?? 0, -42.5, 42.5) : 0;
-  const left = `${shotX}%`;
-  const top = `${50 - (shotY / 42.5) * 42}%`;
 
   return (
     <div className="rounded-xl border border-white/10 bg-black/20 p-3">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Goal Location</p>
-      <div className="relative mt-3 aspect-[1.85/1] overflow-hidden rounded-xl border border-gold/20 bg-[#f4f0df]">
-        <div className="absolute inset-y-0 left-0 w-px bg-red-500/70" />
-        <div className="absolute inset-y-0 left-1/2 w-px bg-red-500/55" />
-        <div className="absolute inset-y-[12%] left-[34%] w-px bg-blue-500/45" />
-        <div className="absolute right-[8%] top-1/2 h-[34%] w-[22%] -translate-y-1/2 rounded-l-full border-2 border-red-500/65 border-r-0" />
-        <div className="absolute right-[4%] top-1/2 h-8 w-2 -translate-y-1/2 rounded-sm bg-red-600/85" />
-        <div
-          className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-gold shadow-[0_0_14px_rgba(216,188,122,0.95)]"
-          style={{ left, top }}
+      <svg
+        className="mt-3 block aspect-[1.85/1] w-full overflow-visible rounded-xl border border-gold/20 bg-[#f8fbff]"
+        viewBox="-2 -45 104 90"
+        role="img"
+        aria-label="Half rink goal location"
+      >
+        <defs>
+          <clipPath id={`rink-clip-${goal.eventId}`}>
+            <path d="M 0 -42.5 H 72 A 28 28 0 0 1 100 -14.5 V 14.5 A 28 28 0 0 1 72 42.5 H 0 Z" />
+          </clipPath>
+          <filter id={`goal-glow-${goal.eventId}`} x="-120%" y="-120%" width="340%" height="340%">
+            <feGaussianBlur stdDeviation="2.3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        <g clipPath={`url(#rink-clip-${goal.eventId})`}>
+          <rect x="0" y="-42.5" width="100" height="85" fill="#f8fbff" />
+          <path d="M 0 -42.5 V 42.5" stroke="#c82333" strokeWidth="0.9" />
+          <path d="M 25 -42.5 V 42.5" stroke="#2563eb" strokeWidth="1.25" />
+          <path d="M 89 -42.5 V 42.5" stroke="#c82333" strokeWidth="0.9" />
+
+          <path d="M 89 -11 L 100 -14 M 89 11 L 100 14" stroke="#c82333" strokeWidth="0.6" />
+          <path d="M 89 -7 H 100 M 89 7 H 100" stroke="#c82333" strokeWidth="0.45" strokeDasharray="1 1" opacity="0.55" />
+
+          <path d="M 89 -4 H 83 A 6 6 0 0 0 83 4 H 89 Z" fill="#bfdbfe" fillOpacity="0.7" stroke="#2563eb" strokeWidth="0.65" />
+          <rect x="90.2" y="-3" width="3.4" height="6" rx="0.5" fill="#c82333" />
+
+          <g fill="none" stroke="#c82333" strokeWidth="0.7">
+            <circle cx="69" cy="-22" r="15" />
+            <circle cx="69" cy="22" r="15" />
+            <path d="M 63 -32 H 67 M 71 -32 H 75 M 63 -12 H 67 M 71 -12 H 75" />
+            <path d="M 63 12 H 67 M 71 12 H 75 M 63 32 H 67 M 71 32 H 75" />
+          </g>
+          <g fill="#c82333">
+            <circle cx="69" cy="-22" r="1.3" />
+            <circle cx="69" cy="22" r="1.3" />
+          </g>
+
+          <g fill="none" stroke="#94a3b8" strokeWidth="0.35" opacity="0.38">
+            <path d="M 0 -21.25 H 100 M 0 0 H 100 M 0 21.25 H 100" />
+            <path d="M 50 -42.5 V 42.5 M 75 -42.5 V 42.5" />
+          </g>
+        </g>
+
+        <path
+          d="M 0 -42.5 H 72 A 28 28 0 0 1 100 -14.5 V 14.5 A 28 28 0 0 1 72 42.5 H 0 Z"
+          fill="none"
+          stroke="#111827"
+          strokeWidth="1.2"
         />
-      </div>
+        <circle
+          cx={shotX}
+          cy={shotY}
+          r="2.3"
+          fill="#d8bc7a"
+          stroke="#111827"
+          strokeWidth="0.65"
+          filter={`url(#goal-glow-${goal.eventId})`}
+        />
+      </svg>
       <p className="mt-2 text-xs text-mist">
-        {hasCoordinates ? "Plotted from NHL rink coordinates." : "Location unavailable from NHL play data."}
+        {hasCoordinates ? "Shot location plotted on the attacking half of the rink." : "Location unavailable from NHL play data."}
       </p>
     </div>
   );
