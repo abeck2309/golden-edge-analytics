@@ -75,7 +75,7 @@ iframe:focus-visible {
 .splash-outline-shell {
   position: relative;
   z-index: 1;
-  width: min(78vmin, 540px);
+  width: min(112vh, 96vw);
   aspect-ratio: 1;
 }
 
@@ -90,16 +90,23 @@ iframe:focus-visible {
 .splash-outline-image {
   object-fit: contain;
   opacity: 0.9;
-  filter: drop-shadow(0 0 8px rgba(216, 188, 122, 0.2));
+  filter: drop-shadow(0 0 10px rgba(255, 213, 89, 0.34));
 }
 
 .splash-outline-glow {
   background:
-    linear-gradient(180deg, rgba(255, 246, 207, 0.98), rgba(216, 188, 122, 0.98) 48%, rgba(163, 127, 57, 0.8));
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 236, 1) 0%,
+      rgba(255, 229, 115, 1) 28%,
+      rgba(255, 190, 28, 1) 58%,
+      rgba(255, 142, 0, 0.96) 100%
+    );
   filter:
-    drop-shadow(0 0 8px rgba(255, 235, 176, 0.95))
-    drop-shadow(0 0 22px rgba(216, 188, 122, 0.72))
-    drop-shadow(0 0 46px rgba(216, 188, 122, 0.38));
+    drop-shadow(0 0 7px rgba(255, 246, 188, 1))
+    drop-shadow(0 0 18px rgba(255, 205, 54, 0.98))
+    drop-shadow(0 0 42px rgba(255, 174, 0, 0.82))
+    drop-shadow(0 0 88px rgba(255, 174, 0, 0.46));
   mask-image: url("/vgk-outline.png");
   mask-repeat: no-repeat;
   mask-position: center;
@@ -109,7 +116,7 @@ iframe:focus-visible {
   -webkit-mask-position: center;
   -webkit-mask-size: contain;
   clip-path: inset(100% 0 0 0);
-  animation: splash-outline-rise 2.55s ease-in-out forwards;
+  animation: splash-outline-rise 3.7s cubic-bezier(0.22, 0.75, 0.24, 1) forwards;
 }
 
 @keyframes splash-outline-rise {

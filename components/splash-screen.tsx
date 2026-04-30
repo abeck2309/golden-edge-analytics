@@ -22,8 +22,8 @@ export function SplashScreen() {
 
     sessionStorage.setItem("golden-edge-splash-played", "true");
 
-    const exitTimer = window.setTimeout(() => setIsExiting(true), 2700);
-    const doneTimer = window.setTimeout(() => setShowSplash(false), 3400);
+    const exitTimer = window.setTimeout(() => setIsExiting(true), 3900);
+    const doneTimer = window.setTimeout(() => setShowSplash(false), 4700);
 
     return () => {
       window.clearTimeout(exitTimer);
