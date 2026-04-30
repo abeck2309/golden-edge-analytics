@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { VgkGameDetail, VgkPlayerCardData, VgkUpdatesData } from "@/lib/nhl-api";
 import { cn } from "@/lib/cn";
 
@@ -271,6 +271,7 @@ function GameDetailPanel({
   loading,
   goalPopup,
   onCloseGoalPopup,
+  onOpenGoalPopup,
   onOpenPlayer
 }: {
   detail: VgkGameDetail | null;
@@ -278,6 +279,7 @@ function GameDetailPanel({
   loading: boolean;
   goalPopup: GoalEvent | null;
   onCloseGoalPopup: () => void;
+  onOpenGoalPopup: (goal: GoalEvent) => void;
   onOpenPlayer: (playerId: number) => void;
 }) {
   if (loading) {
@@ -506,7 +508,7 @@ function GameDetailPanel({
                 <div className="mt-3 space-y-3">
                   {period.goals.length ? (
                     period.goals.map((goal) => (
-                      <div key={goal.eventId} className="flex gap-1.5 border-t border-white/10 pt-1.5">
+                      <div key={goal.eventId} className="flex items-start gap-1.5 border-t border-white/10 pt-1.5">
                         <Image
                           src={logoSrc(goal.teamAbbrev)}
                           alt=""
@@ -514,7 +516,7 @@ function GameDetailPanel({
                           height={18}
                           className="h-5 w-5 shrink-0 object-contain"
                         />
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-gold-bright">
                             {goal.time} | {goal.teamAbbrev} | {goal.score}
                           </p>
@@ -541,6 +543,39 @@ function GameDetailPanel({
                               <span className="text-mist"> unassisted</span>
                             )}
                           </p>
+                        </div>
+                        <div className="ml-1 flex shrink-0 gap-1">
+                          <button
+                            type="button"
+                            onClick={() => onOpenGoalPopup(goal)}
+                            aria-label={`Open goal details for ${goal.scorer}`}
+                            title="Goal details"
+                            className="grid h-5 w-5 place-items-center rounded-full border border-gold/40 bg-gold/10 text-[12px] font-black leading-none text-gold-bright transition hover:border-gold hover:bg-gold/20 hover:text-white"
+                          >
+                            +
+                          </button>
+                          {goal.highlightUrl ? (
+                            <a
+                              href={goal.highlightUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              aria-label={`Watch highlight for ${goal.scorer}`}
+                              title="Watch highlight"
+                              className="grid h-5 w-5 place-items-center rounded-full border border-white/15 bg-white/[0.04] text-[9px] font-black leading-none text-white transition hover:border-gold/50 hover:bg-gold/15"
+                            >
+                              &#9654;
+                            </a>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled
+                              aria-label={`No highlight available for ${goal.scorer}`}
+                              title="No highlight available"
+                              className="grid h-5 w-5 cursor-not-allowed place-items-center rounded-full border border-white/10 bg-white/[0.02] text-[9px] font-black leading-none text-mist/40"
+                            >
+                              &#9654;
+                            </button>
+                          )}
                         </div>
                       </div>
                     ))
@@ -573,6 +608,28 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
   const [goalPopup, setGoalPopup] = useState<GoalEvent | null>(null);
   const seenGoalIds = useRef<Set<number> | null>(null);
   const goalPopupTimer = useRef<number | null>(null);
+
+  const closeGoalPopup = useCallback(() => {
+    setGoalPopup(null);
+
+    if (goalPopupTimer.current) {
+      window.clearTimeout(goalPopupTimer.current);
+      goalPopupTimer.current = null;
+    }
+  }, []);
+
+  const showGoalPopup = useCallback((goal: GoalEvent) => {
+    setGoalPopup(goal);
+
+    if (goalPopupTimer.current) {
+      window.clearTimeout(goalPopupTimer.current);
+    }
+
+    goalPopupTimer.current = window.setTimeout(() => {
+      setGoalPopup(null);
+      goalPopupTimer.current = null;
+    }, 15000);
+  }, []);
 
   const filteredGames = useMemo(() => {
     if (gameTypeFilter === "preseason") return currentData.games.filter((game) => game.gameType === 1);
@@ -675,16 +732,9 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
 
             if (newGoals.length) {
               const latestGoal = newGoals.at(-1) ?? null;
-              setGoalPopup(latestGoal);
-
-              if (goalPopupTimer.current) {
-                window.clearTimeout(goalPopupTimer.current);
+              if (latestGoal) {
+                showGoalPopup(latestGoal);
               }
-
-              goalPopupTimer.current = window.setTimeout(() => {
-                setGoalPopup(null);
-                goalPopupTimer.current = null;
-              }, 15000);
             }
           }
         })
@@ -712,7 +762,7 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
         goalPopupTimer.current = null;
       }
     };
-  }, [selectedGameId]);
+  }, [selectedGameId, showGoalPopup]);
 
   useEffect(() => {
     if (!selectedPlayerId) return;
@@ -798,7 +848,8 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
           error={detailError}
           goalPopup={goalPopup}
           loading={detailLoading}
-          onCloseGoalPopup={() => setGoalPopup(null)}
+          onCloseGoalPopup={closeGoalPopup}
+          onOpenGoalPopup={showGoalPopup}
           onOpenPlayer={setSelectedPlayerId}
         />
       </div>
