@@ -11,7 +11,6 @@ import {
 
 const START_ALERT_WINDOW = 10 * 60 * 1000;
 const TWELVE_HOURS = 12 * 60 * 60 * 1000;
-const FINAL_GOAL_CAPTURE_WINDOW = 10 * 60 * 1000;
 
 type AutomatedCandidate = {
   body: string;
@@ -74,7 +73,7 @@ function shouldCheckGoals(game: VgkScheduleAlertGame, now: number) {
 
   return (
     (isLiveState(game) && sinceStart >= 0 && sinceStart <= TWELVE_HOURS) ||
-    (isFinalState(game) && sinceStart >= 0 && sinceStart <= FINAL_GOAL_CAPTURE_WINDOW)
+    (isFinalState(game) && sinceStart >= 0 && sinceStart <= TWELVE_HOURS)
   );
 }
 
@@ -87,7 +86,7 @@ function buildGameStartCandidate(game: VgkScheduleAlertGame, now: number): Autom
       body: gameStartText(game),
       key: `game-start:${game.id}`,
       tag: `vgk-game-start-${game.id}`,
-      title: "VGK Game Starting Now⚔️",
+      title: "VGK Game Starting Now\u2694\uFE0F",
       topic: "game-start",
       type: "game-start",
       url: "/vgk-updates"
@@ -101,7 +100,7 @@ function buildFinalScoreCandidate(game: VgkScheduleAlertGame, now: number): Auto
   const sinceStart = now - gameStartTime(game);
 
   if (isFinalState(game) && sinceStart >= 0 && sinceStart <= TWELVE_HOURS) {
-    const result = game.vgkScore > game.opponentScore ? "WIN🃏" : "LOSE🙅";
+    const result = game.vgkScore > game.opponentScore ? "WIN\u{1F0CF}" : "LOSE\u{1F645}";
 
     return {
       body: "Tap to view the game details.",

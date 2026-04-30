@@ -749,7 +749,7 @@ export async function getVgkGoalAlertsForGame(gameId: number) {
       gameId,
       isVgkGoal,
       opponent,
-      title: `${isVgkGoal ? "GOLDEN KNIGHTS" : goal.teamAbbrev} GOAL🚨, ${score}`,
+      title: `${isVgkGoal ? "GOLDEN KNIGHTS" : goal.teamAbbrev} GOAL\u{1F6A8}, ${score}`,
       body: `${goal.scorer} (${goal.scorerTotal}) ${assistText} @ ${goal.timeRemaining} remaining in ${goal.periodLabel}`
     };
   });
