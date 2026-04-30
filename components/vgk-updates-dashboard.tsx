@@ -246,7 +246,7 @@ function GoalLocationRink({ goal }: { goal: GoalEvent }) {
     <div className="rounded-xl border border-white/10 bg-black/20 p-3">
       <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Goal Location</p>
       <svg
-        className="mt-3 block aspect-[1.85/1] w-full overflow-visible rounded-xl border border-gold/20 bg-[#f8fbff]"
+        className="mt-3 block aspect-[1.85/1] w-full overflow-visible"
         viewBox="0 -42.5 100 85"
         role="img"
         aria-label="Half rink goal location"
