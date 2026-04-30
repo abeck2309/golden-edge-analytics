@@ -787,7 +787,7 @@ export async function getVgkUpdates() {
         ? {
             id: featuredScheduleGame.id,
             label: featuredGameLabel(featuredScheduleGame, featuredScheduleGame === todayScheduleGame),
-            status: featuredScheduleGame.gameScheduleState ?? featuredScheduleGame.gameState,
+            status: featuredScheduleGame.gameState,
             score: scoreLine(featuredScheduleGame),
             opponent: displayTeamName(getOpponent(featuredScheduleGame)),
             opponentAbbrev: getOpponent(featuredScheduleGame).abbrev,
