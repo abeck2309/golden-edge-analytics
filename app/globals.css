@@ -72,6 +72,27 @@ iframe:focus-visible {
     linear-gradient(90deg, transparent calc(50% - 34px), #333f42 calc(50% - 14px), #000000 calc(50% + 14px), transparent calc(50% + 34px));
 }
 
+.splash-star-pattern {
+  position: absolute;
+  inset-block: 0;
+  width: 50%;
+  background-image: url("/star-three-points.png");
+  background-repeat: repeat;
+  background-size: 28px 28px;
+  pointer-events: none;
+}
+
+.splash-star-pattern-left {
+  left: 0;
+  opacity: 0.13;
+}
+
+.splash-star-pattern-right {
+  right: 0;
+  opacity: 0.08;
+  filter: invert(1);
+}
+
 .splash-outline-shell {
   position: relative;
   z-index: 1;
@@ -96,7 +117,7 @@ iframe:focus-visible {
 
 .splash-outline-glow-window {
   clip-path: inset(100% 0 0 0);
-  animation: splash-outline-rise 3.7s cubic-bezier(0.22, 0.75, 0.24, 1) forwards;
+  animation: splash-outline-rise 5s cubic-bezier(0.22, 0.75, 0.24, 1) forwards;
   will-change: clip-path;
 }
 

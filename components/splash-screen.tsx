@@ -22,8 +22,8 @@ export function SplashScreen() {
 
     sessionStorage.setItem("golden-edge-splash-played", "true");
 
-    const exitTimer = window.setTimeout(() => setIsExiting(true), 3900);
-    const doneTimer = window.setTimeout(() => setShowSplash(false), 4700);
+    const exitTimer = window.setTimeout(() => setIsExiting(true), 5200);
+    const doneTimer = window.setTimeout(() => setShowSplash(false), 6000);
 
     return () => {
       window.clearTimeout(exitTimer);
@@ -42,6 +42,8 @@ export function SplashScreen() {
         isExiting ? "opacity-0" : "opacity-100"
       }`}
     >
+      <div className="splash-star-pattern splash-star-pattern-left" />
+      <div className="splash-star-pattern splash-star-pattern-right" />
       <div className="splash-center-gradient" />
       <div className="splash-outline-shell">
         <Image
