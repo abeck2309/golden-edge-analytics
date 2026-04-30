@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 export function SplashScreen() {
@@ -46,21 +45,15 @@ export function SplashScreen() {
       <div className="splash-star-pattern splash-star-pattern-right" />
       <div className="splash-center-gradient" />
       <div className="splash-outline-shell">
-        <Image
-          src="/vgk-outline-1920.png"
+        <img
+          src="/vgk-outline.svg"
           alt=""
-          width={1920}
-          height={1920}
-          priority
           className="splash-outline-image"
         />
         <div className="splash-outline-glow-window">
-          <Image
-            src="/vgk-outline-1920.png"
+          <img
+            src="/vgk-outline.svg"
             alt=""
-            width={1920}
-            height={1920}
-            priority
             className="splash-outline-glow-image"
           />
         </div>

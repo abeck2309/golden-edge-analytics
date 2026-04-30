@@ -134,21 +134,16 @@ iframe:focus-visible {
   object-fit: contain;
   transform: translateZ(0);
   filter:
-    brightness(1.95)
-    saturate(2.1)
-    drop-shadow(0 0 8px rgba(255, 246, 188, 0.95))
-    drop-shadow(0 0 20px rgba(255, 205, 54, 0.82))
-    drop-shadow(0 0 36px rgba(255, 174, 0, 0.48));
+    brightness(2.4)
+    saturate(2.6);
   opacity: 1;
 }
 
 @supports (-webkit-touch-callout: none) {
   .splash-outline-glow-image {
     filter:
-      brightness(1.8)
-      saturate(1.85)
-      drop-shadow(0 0 8px rgba(255, 220, 86, 0.88))
-      drop-shadow(0 0 18px rgba(255, 174, 0, 0.48));
+      brightness(2.1)
+      saturate(2.2);
   }
 }
 
