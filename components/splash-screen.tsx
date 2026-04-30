@@ -22,8 +22,8 @@ export function SplashScreen() {
 
     sessionStorage.setItem("golden-edge-splash-played", "true");
 
-    const exitTimer = window.setTimeout(() => setIsExiting(true), 2100);
-    const doneTimer = window.setTimeout(() => setShowSplash(false), 2650);
+    const exitTimer = window.setTimeout(() => setIsExiting(true), 2700);
+    const doneTimer = window.setTimeout(() => setShowSplash(false), 3400);
 
     return () => {
       window.clearTimeout(exitTimer);
@@ -38,26 +38,21 @@ export function SplashScreen() {
   return (
     <div
       aria-hidden="true"
-      className={`fixed inset-0 z-[100] grid place-items-center overflow-hidden bg-[#050607] transition-opacity duration-700 ${
+      className={`splash-stage fixed inset-0 z-[100] grid place-items-center overflow-hidden transition-opacity duration-700 ${
         isExiting ? "opacity-0" : "opacity-100"
       }`}
     >
-      <div className="splash-ambient" />
-      <div className="splash-ribbon splash-ribbon-one" />
-      <div className="splash-ribbon splash-ribbon-two" />
-      <div className="splash-ribbon splash-ribbon-three" />
-      <div className="splash-particles splash-particles-one" />
-      <div className="splash-particles splash-particles-two" />
-
-      <div className="splash-logo-shell">
+      <div className="splash-center-gradient" />
+      <div className="splash-outline-shell">
         <Image
-          src="/icon.png"
+          src="/vgk-outline.png"
           alt=""
           width={512}
           height={512}
           priority
-          className="h-52 w-52 object-contain sm:h-72 sm:w-72"
+          className="splash-outline-image"
         />
+        <div className="splash-outline-glow" />
       </div>
     </div>
   );
