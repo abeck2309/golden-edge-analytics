@@ -47,19 +47,19 @@ export function SplashScreen() {
       <div className="splash-center-gradient" />
       <div className="splash-outline-shell">
         <Image
-          src="/vgk-outline.png"
+          src="/vgk-outline-1920.png"
           alt=""
-          width={512}
-          height={512}
+          width={1920}
+          height={1920}
           priority
           className="splash-outline-image"
         />
         <div className="splash-outline-glow-window">
           <Image
-            src="/vgk-outline.png"
+            src="/vgk-outline-1920.png"
             alt=""
-            width={512}
-            height={512}
+            width={1920}
+            height={1920}
             priority
             className="splash-outline-glow-image"
           />

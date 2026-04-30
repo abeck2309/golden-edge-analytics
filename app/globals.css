@@ -121,6 +121,7 @@ iframe:focus-visible {
   object-fit: contain;
   opacity: 0.9;
   filter: drop-shadow(0 0 10px rgba(255, 213, 89, 0.34));
+  transform: translateZ(0);
 }
 
 .splash-outline-glow-window {
@@ -131,6 +132,7 @@ iframe:focus-visible {
 
 .splash-outline-glow-image {
   object-fit: contain;
+  transform: translateZ(0);
   filter:
     brightness(1.95)
     saturate(2.1)
