@@ -1,4 +1,4 @@
-const CACHE_NAME = "golden-edge-pwa-v2";
+const CACHE_NAME = "golden-edge-pwa-v3";
 const VGK_UPDATES_URL = "/vgk-updates";
 const APP_SHELL = [
   "/",
@@ -31,8 +31,14 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   const request = event.request;
+  const url = new URL(request.url);
 
   if (request.method !== "GET") {
+    return;
+  }
+
+  if (url.origin === self.location.origin && url.pathname.startsWith("/api/")) {
+    event.respondWith(fetch(request));
     return;
   }
 
