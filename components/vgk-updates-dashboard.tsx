@@ -65,6 +65,10 @@ function formatZone(value?: string) {
   return value ?? "N/A";
 }
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
 function SectionCard({
   children,
   className = "",
@@ -233,6 +237,132 @@ function PlayerStatSummary({
   );
 }
 
+function GoalLocationRink({ goal }: { goal: GoalEvent }) {
+  const hasCoordinates = typeof goal.xCoord === "number" && typeof goal.yCoord === "number";
+  const shotX = hasCoordinates ? clamp(Math.abs(goal.xCoord ?? 0), 0, 100) : 72;
+  const shotY = hasCoordinates ? clamp(goal.yCoord ?? 0, -42.5, 42.5) : 0;
+  const left = `${shotX}%`;
+  const top = `${50 - (shotY / 42.5) * 42}%`;
+
+  return (
+    <div className="rounded-xl border border-white/10 bg-black/20 p-3">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Goal Location</p>
+      <div className="relative mt-3 aspect-[1.85/1] overflow-hidden rounded-xl border border-gold/20 bg-[#f4f0df]">
+        <div className="absolute inset-y-0 left-0 w-px bg-red-500/70" />
+        <div className="absolute inset-y-0 left-1/2 w-px bg-red-500/55" />
+        <div className="absolute inset-y-[12%] left-[34%] w-px bg-blue-500/45" />
+        <div className="absolute right-[8%] top-1/2 h-[34%] w-[22%] -translate-y-1/2 rounded-l-full border-2 border-red-500/65 border-r-0" />
+        <div className="absolute right-[4%] top-1/2 h-8 w-2 -translate-y-1/2 rounded-sm bg-red-600/85" />
+        <div
+          className="absolute h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-white bg-gold shadow-[0_0_14px_rgba(216,188,122,0.95)]"
+          style={{ left, top }}
+        />
+      </div>
+      <p className="mt-2 text-xs text-mist">
+        {hasCoordinates ? "Plotted from NHL rink coordinates." : "Location unavailable from NHL play data."}
+      </p>
+    </div>
+  );
+}
+
+function GoalDetailDrawer({
+  goal,
+  onClose,
+  onOpenPlayer
+}: {
+  goal: GoalEvent;
+  onClose: () => void;
+  onOpenPlayer: (playerId: number) => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <button type="button" className="absolute inset-0 cursor-default" onClick={onClose} aria-label="Close goal card" />
+      <aside className="absolute right-0 top-0 flex h-full w-full max-w-xl flex-col overflow-y-auto border-l border-white/10 bg-[#090c10] p-5 shadow-2xl md:p-7">
+        <div className="flex items-center justify-between gap-4">
+          <p className="eyebrow">Goal Detail</p>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full border border-white/15 px-3 py-1.5 text-sm font-semibold text-mist hover:border-gold/40 hover:text-white"
+          >
+            Close
+          </button>
+        </div>
+
+        <div className="mt-6 flex gap-4">
+          <Image
+            src={logoSrc(goal.teamAbbrev)}
+            alt=""
+            width={74}
+            height={74}
+            className="h-16 w-16 shrink-0 object-contain"
+          />
+          <div>
+            <h2 className="font-[family-name:var(--font-heading)] text-3xl font-bold text-white">
+              {goal.teamAbbrev} Goal, {goal.score}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-mist">
+              <PlayerNameButton playerId={goal.scorerPlayerId} onOpen={onOpenPlayer}>
+                {goal.scorer}
+              </PlayerNameButton>{" "}
+              scored goal #{goal.scorerTotal} at {goal.timeRemaining} remaining in {goal.periodLabel}.
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-6 grid gap-3 text-sm sm:grid-cols-3">
+          <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Shot Type</p>
+            <p className="mt-1 font-bold text-white">{formatShotType(goal.shotType)}</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Zone</p>
+            <p className="mt-1 font-bold text-white">{formatZone(goal.zoneCode)}</p>
+          </div>
+          <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Against</p>
+            <p className="mt-1 font-bold text-white">{goal.goalieName}</p>
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <GoalLocationRink goal={goal} />
+        </div>
+
+        <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.025] p-4 text-sm leading-6 text-mist">
+          {goal.assists.length ? (
+            <>
+              Assisted by{" "}
+              {goal.assists.map((assist, index) => (
+                <span key={`${assist.playerId}-${assist.name}`}>
+                  {index > 0 ? ", " : ""}
+                  <PlayerNameButton playerId={assist.playerId} onOpen={onOpenPlayer}>
+                    {assist.name}
+                  </PlayerNameButton>{" "}
+                  ({assist.total})
+                </span>
+              ))}
+            </>
+          ) : (
+            "Unassisted goal."
+          )}
+        </div>
+
+        {goal.highlightUrl ? (
+          <a
+            href={goal.highlightUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-6 inline-flex w-fit rounded-full bg-gold px-5 py-3 text-sm font-semibold text-ink hover:bg-gold-bright"
+          >
+            Watch Highlight
+          </a>
+        ) : null}
+      </aside>
+    </div>
+  );
+}
+
 function LeaderBox({
   eyebrow,
   gamesPlayed,
@@ -269,16 +399,12 @@ function GameDetailPanel({
   detail,
   error,
   loading,
-  goalPopup,
-  onCloseGoalPopup,
   onOpenGoalPopup,
   onOpenPlayer
 }: {
   detail: VgkGameDetail | null;
   error: string | null;
   loading: boolean;
-  goalPopup: GoalEvent | null;
-  onCloseGoalPopup: () => void;
   onOpenGoalPopup: (goal: GoalEvent) => void;
   onOpenPlayer: (playerId: number) => void;
 }) {
@@ -314,95 +440,6 @@ function GameDetailPanel({
 
   return (
     <section className="panel overflow-hidden p-5 md:p-6">
-      {goalPopup ? (
-        <div className="mb-5 rounded-2xl border border-gold/40 bg-[#100d05]/95 p-4 shadow-[0_0_35px_rgba(216,188,122,0.18)]">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div className="flex gap-3">
-              <Image
-                src={logoSrc(goalPopup.teamAbbrev)}
-                alt=""
-                width={48}
-                height={48}
-                className="h-12 w-12 shrink-0 object-contain"
-              />
-              <div>
-                <p className="text-xs font-black uppercase tracking-[0.24em] text-gold-bright">
-                  Goal Alert
-                </p>
-                <h3 className="mt-1 font-[family-name:var(--font-heading)] text-2xl font-bold text-white">
-                  {goalPopup.teamAbbrev} Goal, {goalPopup.score}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-mist">
-                  <PlayerNameButton playerId={goalPopup.scorerPlayerId} onOpen={onOpenPlayer}>
-                    {goalPopup.scorer}
-                  </PlayerNameButton>{" "}
-                  scored goal #{goalPopup.scorerTotal} at {goalPopup.timeRemaining} remaining in {goalPopup.periodLabel}.
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={onCloseGoalPopup}
-              className="w-fit rounded-full border border-white/15 px-3 py-1.5 text-xs font-bold text-mist hover:border-gold/40 hover:text-white"
-            >
-              Dismiss
-            </button>
-          </div>
-
-          <div className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
-            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Shot Type</p>
-              <p className="mt-1 font-bold text-white">{formatShotType(goalPopup.shotType)}</p>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Zone</p>
-              <p className="mt-1 font-bold text-white">{formatZone(goalPopup.zoneCode)}</p>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Against</p>
-              <p className="mt-1 font-bold text-white">{goalPopup.goalieName}</p>
-            </div>
-            <div className="rounded-xl border border-white/10 bg-black/20 p-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Location</p>
-              <p className="mt-1 font-bold text-white">
-                {typeof goalPopup.xCoord === "number" && typeof goalPopup.yCoord === "number"
-                  ? `x ${goalPopup.xCoord}, y ${goalPopup.yCoord}`
-                  : "N/A"}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 text-sm leading-6 text-mist">
-            {goalPopup.assists.length ? (
-              <>
-                Assisted by{" "}
-                {goalPopup.assists.map((assist, index) => (
-                  <span key={`${assist.playerId}-${assist.name}`}>
-                    {index > 0 ? ", " : ""}
-                    <PlayerNameButton playerId={assist.playerId} onOpen={onOpenPlayer}>
-                      {assist.name}
-                    </PlayerNameButton>{" "}
-                    ({assist.total})
-                  </span>
-                ))}
-              </>
-            ) : (
-              "Unassisted goal."
-            )}
-            {goalPopup.highlightUrl ? (
-              <a
-                href={goalPopup.highlightUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="ml-2 font-semibold text-gold-bright underline decoration-gold/40 underline-offset-4"
-              >
-                Watch highlight
-              </a>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-
       <div className="grid gap-4 md:grid-cols-[1fr_auto_1fr] md:items-center">
         <div className="flex items-center gap-4">
           <Image src={logoSrc(detail.awayTeam.abbrev)} alt="" width={74} height={74} className="h-16 w-16 object-contain md:h-20 md:w-20" />
@@ -618,17 +655,20 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
     }
   }, []);
 
-  const showGoalPopup = useCallback((goal: GoalEvent) => {
+  const showGoalPopup = useCallback((goal: GoalEvent, autoDismiss = false) => {
     setGoalPopup(goal);
 
     if (goalPopupTimer.current) {
       window.clearTimeout(goalPopupTimer.current);
+      goalPopupTimer.current = null;
     }
 
-    goalPopupTimer.current = window.setTimeout(() => {
-      setGoalPopup(null);
-      goalPopupTimer.current = null;
-    }, 15000);
+    if (autoDismiss) {
+      goalPopupTimer.current = window.setTimeout(() => {
+        setGoalPopup(null);
+        goalPopupTimer.current = null;
+      }, 15000);
+    }
   }, []);
 
   const filteredGames = useMemo(() => {
@@ -733,7 +773,7 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
             if (newGoals.length) {
               const latestGoal = newGoals.at(-1) ?? null;
               if (latestGoal) {
-                showGoalPopup(latestGoal);
+                showGoalPopup(latestGoal, true);
               }
             }
           }
@@ -846,9 +886,7 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
         <GameDetailPanel
           detail={detail}
           error={detailError}
-          goalPopup={goalPopup}
           loading={detailLoading}
-          onCloseGoalPopup={closeGoalPopup}
           onOpenGoalPopup={showGoalPopup}
           onOpenPlayer={setSelectedPlayerId}
         />
@@ -1000,6 +1038,13 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
           loading={playerLoading}
           onClose={closePlayerCard}
           player={playerCard}
+        />
+      ) : null}
+      {goalPopup ? (
+        <GoalDetailDrawer
+          goal={goalPopup}
+          onClose={closeGoalPopup}
+          onOpenPlayer={setSelectedPlayerId}
         />
       ) : null}
     </>
