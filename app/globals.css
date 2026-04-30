@@ -62,14 +62,14 @@ iframe:focus-visible {
 
 .splash-stage {
   background:
-    linear-gradient(90deg, #333f42 0 calc(50% - 12px), transparent calc(50% - 12px) calc(50% + 12px), #000000 calc(50% + 12px) 100%);
+    linear-gradient(90deg, #333f42 0 calc(50% - 14px), #333f42 calc(50% - 14px), #000000 calc(50% + 14px), #000000 100%);
 }
 
 .splash-center-gradient {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, transparent calc(50% - 26px), rgba(216, 188, 122, 0.18), rgba(245, 229, 176, 0.56), rgba(216, 188, 122, 0.18), transparent calc(50% + 26px));
+    linear-gradient(90deg, transparent calc(50% - 34px), #333f42 calc(50% - 14px), #000000 calc(50% + 14px), transparent calc(50% + 34px));
 }
 
 .splash-outline-shell {
