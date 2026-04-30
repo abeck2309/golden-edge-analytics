@@ -428,6 +428,15 @@ function makeLeaders(clubStats: ClubStatsResponse) {
 }
 
 function teamStatsFor(rightRail: GameRightRail, game: GameBoxscore) {
+  function formatTeamStatLabel(category: string) {
+    return category
+      .replace(/^sog$/i, "SOG")
+      .replace(/^pim$/i, "PIM")
+      .replace(/Pctg$/, " %")
+      .replace(/([A-Z])/g, " $1")
+      .replace(/^./, (letter) => letter.toUpperCase());
+  }
+
   function formatTeamStatValue(value: string | number) {
     if (typeof value === "number") {
       return Number.isInteger(value) ? value : value.toFixed(2);
@@ -438,10 +447,7 @@ function teamStatsFor(rightRail: GameRightRail, game: GameBoxscore) {
 
   return (rightRail.teamGameStats ?? []).map((stat) => ({
     category: stat.category,
-    label: stat.category
-      .replace(/Pctg$/, " %")
-      .replace(/([A-Z])/g, " $1")
-      .replace(/^./, (letter) => letter.toUpperCase()),
+    label: formatTeamStatLabel(stat.category),
     awayValue: formatTeamStatValue(stat.awayValue),
     homeValue: formatTeamStatValue(stat.homeValue)
   }));
