@@ -34,6 +34,17 @@ function StatTile({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+function detailScoreLine(detail: VgkGameDetail | null) {
+  if (!detail) {
+    return null;
+  }
+
+  const vgkTeam = detail.awayTeam.abbrev === "VGK" ? detail.awayTeam : detail.homeTeam;
+  const opponent = detail.awayTeam.abbrev === "VGK" ? detail.homeTeam : detail.awayTeam;
+
+  return `VGK ${vgkTeam.score}, ${opponent.abbrev} ${opponent.score}`;
+}
+
 function SectionCard({
   children,
   className = "",
@@ -461,36 +472,52 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
     [data.games, selectedGameId]
   );
   const selectedFeaturedGame = data.overview.featuredGame?.id === selectedGameId ? data.overview.featuredGame : null;
+  const liveDetailScore = selectedFeaturedGame && detail?.id === selectedFeaturedGame.id ? detailScoreLine(detail) : null;
+  const featuredGameStatus = selectedFeaturedGame && detail?.id === selectedFeaturedGame.id
+    ? detail.gameState
+    : data.overview.featuredGame?.status;
 
   useEffect(() => {
     if (!selectedGameId) return;
 
     let isCurrent = true;
-    setDetailLoading(true);
-    setDetailError(null);
+    let refreshTimer: number | null = null;
 
-    fetch(`/api/vgk-game/${selectedGameId}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Unable to load game detail.");
-        }
-        return response.json() as Promise<VgkGameDetail>;
-      })
-      .then((gameDetail) => {
-        if (isCurrent) setDetail(gameDetail);
-      })
-      .catch((error: Error) => {
-        if (isCurrent) {
-          setDetail(null);
-          setDetailError(error.message);
-        }
-      })
-      .finally(() => {
-        if (isCurrent) setDetailLoading(false);
-      });
+    function loadGameDetail(showLoading: boolean) {
+      if (showLoading) {
+        setDetailLoading(true);
+      }
+      setDetailError(null);
+
+      fetch(`/api/vgk-game/${selectedGameId}`)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Unable to load game detail.");
+          }
+          return response.json() as Promise<VgkGameDetail>;
+        })
+        .then((gameDetail) => {
+          if (isCurrent) setDetail(gameDetail);
+        })
+        .catch((error: Error) => {
+          if (isCurrent) {
+            setDetail(null);
+            setDetailError(error.message);
+          }
+        })
+        .finally(() => {
+          if (isCurrent && showLoading) setDetailLoading(false);
+        });
+    }
+
+    loadGameDetail(true);
+    refreshTimer = window.setInterval(() => loadGameDetail(false), 30000);
 
     return () => {
       isCurrent = false;
+      if (refreshTimer) {
+        window.clearInterval(refreshTimer);
+      }
     };
   }, [selectedGameId]);
 
@@ -551,7 +578,7 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
             <StatTile label="Division" value={data.overview.teamSnapshot?.standingsPosition ?? "N/A"} />
             <StatTile
               label={data.overview.featuredGame?.label ?? "Latest Game"}
-              value={data.overview.featuredGame?.score ?? data.overview.latestGame.score}
+              value={liveDetailScore ?? data.overview.featuredGame?.score ?? data.overview.latestGame.score}
             />
           </div>
         </div>
@@ -652,7 +679,7 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
                   </div>
                 </div>
                 <span className={cn("text-xs font-bold uppercase tracking-[0.16em]", data.overview.featuredGame.isLive ? "text-red-300" : "text-gold-bright")}>
-                  {data.overview.featuredGame.status}
+                  {featuredGameStatus}
                 </span>
               </div>
               <div className="mt-4 flex items-end justify-between gap-3">
@@ -670,7 +697,7 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
                   </p>
                 </div>
                 <p className="font-[family-name:var(--font-heading)] text-2xl font-bold text-white">
-                  {data.overview.featuredGame.score}
+                  {liveDetailScore ?? data.overview.featuredGame.score}
                 </p>
               </div>
             </button>

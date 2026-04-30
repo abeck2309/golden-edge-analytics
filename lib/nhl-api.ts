@@ -292,7 +292,7 @@ async function nhlApiFetch<T>(url: string): Promise<T> {
       Accept: "application/json"
     },
     next: {
-      revalidate: 300
+      revalidate: 30
     }
   });
 
