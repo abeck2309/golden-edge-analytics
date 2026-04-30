@@ -445,6 +445,7 @@ function GameDetailPanel({
 }
 
 export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
+  const [currentData, setCurrentData] = useState(data);
   const [selectedGameId, setSelectedGameId] = useState<number | null>(
     data.overview.featuredGame?.id ?? data.games[0]?.id ?? null
   );
@@ -458,24 +459,66 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
   const [playerLoading, setPlayerLoading] = useState(false);
 
   const filteredGames = useMemo(() => {
-    if (gameTypeFilter === "preseason") return data.games.filter((game) => game.gameType === 1);
-    if (gameTypeFilter === "regular") return data.games.filter((game) => game.gameType === 2);
-    if (gameTypeFilter === "playoffs") return data.games.filter((game) => game.gameType === 3);
-    return data.games;
-  }, [data.games, gameTypeFilter]);
-  const gameLogGames = data.overview.featuredGame?.isToday
-    ? filteredGames.filter((game) => game.id !== data.overview.featuredGame?.id)
+    if (gameTypeFilter === "preseason") return currentData.games.filter((game) => game.gameType === 1);
+    if (gameTypeFilter === "regular") return currentData.games.filter((game) => game.gameType === 2);
+    if (gameTypeFilter === "playoffs") return currentData.games.filter((game) => game.gameType === 3);
+    return currentData.games;
+  }, [currentData.games, gameTypeFilter]);
+  const gameLogGames = currentData.overview.featuredGame?.isToday
+    ? filteredGames.filter((game) => game.id !== currentData.overview.featuredGame?.id)
     : filteredGames;
 
   const selectedGame = useMemo(
-    () => data.games.find((game) => game.id === selectedGameId) ?? null,
-    [data.games, selectedGameId]
+    () => currentData.games.find((game) => game.id === selectedGameId) ?? null,
+    [currentData.games, selectedGameId]
   );
-  const selectedFeaturedGame = data.overview.featuredGame?.id === selectedGameId ? data.overview.featuredGame : null;
+  const selectedFeaturedGame = currentData.overview.featuredGame?.id === selectedGameId ? currentData.overview.featuredGame : null;
   const liveDetailScore = selectedFeaturedGame && detail?.id === selectedFeaturedGame.id ? detailScoreLine(detail) : null;
   const featuredGameStatus = selectedFeaturedGame && detail?.id === selectedFeaturedGame.id
     ? detail.gameState
-    : data.overview.featuredGame?.status;
+    : currentData.overview.featuredGame?.status;
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    function refreshDashboardData() {
+      fetch("/api/vgk-updates", { cache: "no-store" })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Unable to refresh VGK updates.");
+          }
+          return response.json() as Promise<VgkUpdatesData>;
+        })
+        .then((updates) => {
+          if (isCurrent) setCurrentData(updates);
+        })
+        .catch((error: Error) => {
+          console.warn(error.message);
+        });
+    }
+
+    refreshDashboardData();
+    const refreshTimer = window.setInterval(refreshDashboardData, 30000);
+
+    return () => {
+      isCurrent = false;
+      window.clearInterval(refreshTimer);
+    };
+  }, []);
+
+  useEffect(() => {
+    const featuredId = currentData.overview.featuredGame?.id ?? null;
+
+    if (!featuredId || selectedGameId === featuredId) {
+      return;
+    }
+
+    const selectedGameStillExists = currentData.games.some((game) => game.id === selectedGameId);
+
+    if (!selectedGameStillExists) {
+      setSelectedGameId(featuredId);
+    }
+  }, [currentData.games, currentData.overview.featuredGame?.id, selectedGameId]);
 
   useEffect(() => {
     if (!selectedGameId) return;
@@ -489,7 +532,7 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
       }
       setDetailError(null);
 
-      fetch(`/api/vgk-game/${selectedGameId}`)
+      fetch(`/api/vgk-game/${selectedGameId}`, { cache: "no-store" })
         .then((response) => {
           if (!response.ok) {
             throw new Error("Unable to load game detail.");
@@ -573,12 +616,12 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 lg:ml-6">
-            <StatTile label="Record" value={data.overview.teamSnapshot?.record ?? "N/A"} />
-            <StatTile label="Points" value={data.overview.teamSnapshot?.points ?? "N/A"} />
-            <StatTile label="Division" value={data.overview.teamSnapshot?.standingsPosition ?? "N/A"} />
+            <StatTile label="Record" value={currentData.overview.teamSnapshot?.record ?? "N/A"} />
+            <StatTile label="Points" value={currentData.overview.teamSnapshot?.points ?? "N/A"} />
+            <StatTile label="Division" value={currentData.overview.teamSnapshot?.standingsPosition ?? "N/A"} />
             <StatTile
-              label={data.overview.featuredGame?.label ?? "Latest Game"}
-              value={liveDetailScore ?? data.overview.featuredGame?.score ?? data.overview.latestGame.score}
+              label={currentData.overview.featuredGame?.label ?? "Latest Game"}
+              value={liveDetailScore ?? currentData.overview.featuredGame?.score ?? currentData.overview.latestGame.score}
             />
           </div>
         </div>
@@ -587,14 +630,14 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <LeaderBox
           eyebrow="Regular Season Leaders"
-          gamesPlayed={data.leaderGroups.regularSeason.gamesPlayed}
-          leaders={data.leaderGroups.regularSeason.leaders}
+          gamesPlayed={currentData.leaderGroups.regularSeason.gamesPlayed}
+          leaders={currentData.leaderGroups.regularSeason.leaders}
           onOpenPlayer={setSelectedPlayerId}
         />
         <LeaderBox
           eyebrow="Playoff Leaders"
-          gamesPlayed={data.leaderGroups.playoffs.gamesPlayed}
-          leaders={data.leaderGroups.playoffs.leaders}
+          gamesPlayed={currentData.leaderGroups.playoffs.gamesPlayed}
+          leaders={currentData.leaderGroups.playoffs.leaders}
           onOpenPlayer={setSelectedPlayerId}
         />
       </div>
@@ -652,20 +695,20 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {data.overview.featuredGame?.isToday ? (
+          {currentData.overview.featuredGame?.isToday ? (
             <button
               type="button"
-              onClick={() => setSelectedGameId(data.overview.featuredGame?.id ?? null)}
+              onClick={() => setSelectedGameId(currentData.overview.featuredGame?.id ?? null)}
               className={cn(
                 "rounded-xl border p-4 text-left transition-colors",
                 "border-gold/35 bg-gold/10 hover:border-gold/60 hover:bg-gold/15",
-                data.overview.featuredGame.id === selectedGameId && "border-gold/70 bg-gold/20"
+                currentData.overview.featuredGame.id === selectedGameId && "border-gold/70 bg-gold/20"
               )}
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <Image
-                    src={logoSrc(data.overview.featuredGame.opponentAbbrev)}
+                    src={logoSrc(currentData.overview.featuredGame.opponentAbbrev)}
                     alt=""
                     width={38}
                     height={38}
@@ -673,19 +716,19 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
                   />
                   <div>
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-bright">
-                      {data.overview.featuredGame.label}
+                      {currentData.overview.featuredGame.label}
                     </p>
-                    <p className="font-bold text-white">{data.overview.featuredGame.opponentAbbrev}</p>
+                    <p className="font-bold text-white">{currentData.overview.featuredGame.opponentAbbrev}</p>
                   </div>
                 </div>
-                <span className={cn("text-xs font-bold uppercase tracking-[0.16em]", data.overview.featuredGame.isLive ? "text-red-300" : "text-gold-bright")}>
+                <span className={cn("text-xs font-bold uppercase tracking-[0.16em]", currentData.overview.featuredGame.isLive ? "text-red-300" : "text-gold-bright")}>
                   {featuredGameStatus}
                 </span>
               </div>
               <div className="mt-4 flex items-end justify-between gap-3">
                 <div>
                   <p className="text-xs text-mist">
-                    {formatDate(data.overview.featuredGame.date, {
+                    {formatDate(currentData.overview.featuredGame.date, {
                       month: "numeric",
                       day: "numeric",
                       hour: "numeric",
@@ -693,11 +736,11 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
                     })}
                   </p>
                   <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-mist">
-                    {data.overview.featuredGame.homeAway}
+                    {currentData.overview.featuredGame.homeAway}
                   </p>
                 </div>
                 <p className="font-[family-name:var(--font-heading)] text-2xl font-bold text-white">
-                  {liveDetailScore ?? data.overview.featuredGame.score}
+                  {liveDetailScore ?? currentData.overview.featuredGame.score}
                 </p>
               </div>
             </button>

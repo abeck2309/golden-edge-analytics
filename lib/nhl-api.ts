@@ -288,11 +288,9 @@ export const nhlEndpoints = {
 
 async function nhlApiFetch<T>(url: string): Promise<T> {
   const response = await fetch(url, {
+    cache: "no-store",
     headers: {
       Accept: "application/json"
-    },
-    next: {
-      revalidate: 30
     }
   });
 
