@@ -515,13 +515,13 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
     return new Map(bracket.series.map((series) => [series.seriesLetter, series]));
   }, [bracket.series]);
   const bracketSlots = [
-    { label: "West R1", letters: ["E", "F", "G", "H"] },
-    { label: "West R2", letters: ["K", "L"] },
-    { label: "West Final", letters: ["N"] },
-    { label: "Stanley Cup Final", letters: ["O"] },
-    { label: "East Final", letters: ["M"] },
-    { label: "East R2", letters: ["I", "J"] },
-    { label: "East R1", letters: ["A", "B", "C", "D"] }
+    { label: "West R1", letters: ["E", "F", "G", "H"], x: "left-[2%]", width: "w-[13%]" },
+    { label: "West R2", letters: ["K", "L"], x: "left-[16%]", width: "w-[13%]" },
+    { label: "West Final", letters: ["N"], x: "left-[30%]", width: "w-[13%]" },
+    { label: "Stanley Cup Final", letters: ["O"], x: "left-1/2 -translate-x-1/2", width: "w-[14%]" },
+    { label: "East Final", letters: ["M"], x: "right-[30%]", width: "w-[13%]" },
+    { label: "East R2", letters: ["I", "J"], x: "right-[16%]", width: "w-[13%]" },
+    { label: "East R1", letters: ["A", "B", "C", "D"], x: "right-[2%]", width: "w-[13%]" }
   ];
   const slotPositions: Record<string, string> = {
     A: "top-[5%]",
@@ -688,11 +688,11 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
         <div className="mt-6">
           {bracket.series.length ? (
             <div className="mx-auto w-full max-w-[1680px]">
-              <div className="grid min-h-[820px] grid-cols-7 gap-3 xl:gap-5">
+              <div className="relative min-h-[820px]">
                 {bracketSlots.map((column) => (
                   <div
                     key={column.label}
-                    className="relative min-h-[780px]"
+                    className={cn("absolute top-0 min-h-[780px]", column.x, column.width)}
                   >
                     <p className="absolute left-0 right-0 top-0 text-center text-xs font-semibold uppercase tracking-[0.18em] text-gold-bright">
                       {column.label}
