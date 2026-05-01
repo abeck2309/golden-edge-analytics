@@ -4,7 +4,7 @@ export function ArticlePlayerLink({ children, playerId }: { children: React.Reac
   return (
     <Link
       href={`/players/${playerId}`}
-      className="font-semibold text-white underline decoration-gold/40 underline-offset-4 hover:text-gold-bright"
+      className="underline decoration-gold/45 underline-offset-4 hover:text-gold-bright"
     >
       {children}
     </Link>
