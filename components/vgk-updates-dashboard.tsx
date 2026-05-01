@@ -515,14 +515,31 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
     return new Map(bracket.series.map((series) => [series.seriesLetter, series]));
   }, [bracket.series]);
   const bracketSlots = [
-    { label: "West R1", letters: ["E", "F", "G", "H"], side: "west" },
-    { label: "West R2", letters: ["K", "L"], side: "west" },
-    { label: "West Final", letters: ["N"], side: "west" },
-    { label: "Stanley Cup Final", letters: ["O"], side: "center" },
-    { label: "East Final", letters: ["M"], side: "east" },
-    { label: "East R2", letters: ["I", "J"], side: "east" },
-    { label: "East R1", letters: ["A", "B", "C", "D"], side: "east" }
+    { label: "West R1", letters: ["E", "F", "G", "H"] },
+    { label: "West R2", letters: ["K", "L"] },
+    { label: "West Final", letters: ["N"] },
+    { label: "Stanley Cup Final", letters: ["O"] },
+    { label: "East Final", letters: ["M"] },
+    { label: "East R2", letters: ["I", "J"] },
+    { label: "East R1", letters: ["A", "B", "C", "D"] }
   ];
+  const slotPositions: Record<string, string> = {
+    A: "top-[5%]",
+    B: "top-[28%]",
+    C: "top-[53%]",
+    D: "top-[76%]",
+    E: "top-[5%]",
+    F: "top-[28%]",
+    G: "top-[53%]",
+    H: "top-[76%]",
+    I: "top-[18%]",
+    J: "top-[66%]",
+    K: "top-[18%]",
+    L: "top-[66%]",
+    M: "top-1/2 -translate-y-1/2",
+    N: "top-1/2 -translate-y-1/2",
+    O: "top-1/2 -translate-y-1/2"
+  };
 
   function TeamRow({
     seed,
@@ -587,7 +604,7 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
 
     if (!series) {
       return (
-        <div className="flex h-full flex-col justify-center">
+        <div className="w-full">
           <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">Series {letter}</p>
           <div className="space-y-2">
             {["top", "bottom"].map((seed) => (
@@ -602,7 +619,7 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
 
     if (letter === "O") {
       return (
-        <div className="flex h-full min-h-[360px] flex-col justify-center">
+        <div className="w-full">
           <div className="mb-3 flex items-center justify-between gap-3">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">
               Series {series.seriesLetter || letter}
@@ -628,7 +645,7 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
     }
 
     return (
-      <div className="flex h-full flex-col justify-center">
+      <div className="w-full">
         <div className="mb-2 flex items-center justify-between gap-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">
             Series {series.seriesLetter || letter}
@@ -671,30 +688,23 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
         <div className="mt-5">
           {bracket.series.length ? (
             <div className="overflow-x-auto pb-1">
-              <div className="grid min-w-[1320px] grid-cols-7 gap-4">
+              <div className="grid min-h-[820px] min-w-[1320px] grid-cols-7 gap-5">
                 {bracketSlots.map((column) => (
                   <div
                     key={column.label}
-                    className={cn(
-                      "flex min-h-[760px] rounded-xl border border-white/10 bg-[#0c1015]/70 p-4",
-                      column.side === "center" ? "flex-col justify-center" : "flex-col justify-between"
-                    )}
+                    className="relative min-h-[780px]"
                   >
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-bright">
+                    <p className="absolute left-0 right-0 top-0 text-center text-xs font-semibold uppercase tracking-[0.18em] text-gold-bright">
                       {column.label}
                     </p>
-                    <div
-                      className={cn(
-                        "mt-4 grid gap-3",
-                        column.letters.length === 4 && "grid-rows-4",
-                        column.letters.length === 2 && "my-auto grid-rows-2 gap-28",
-                        column.letters.length === 1 && "my-auto h-full"
-                      )}
-                    >
-                      {column.letters.map((letter) => (
-                        <SeriesCard key={letter} letter={letter} />
-                      ))}
-                    </div>
+                    {column.letters.map((letter) => (
+                      <div
+                        key={letter}
+                        className={cn("absolute left-0 right-0", slotPositions[letter])}
+                      >
+                        <SeriesCard letter={letter} />
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
