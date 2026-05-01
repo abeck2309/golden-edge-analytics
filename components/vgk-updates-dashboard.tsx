@@ -557,7 +557,7 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
       <div
         key={`${seriesLetter}-${seed}-${team.abbrev}`}
         className={cn(
-          "flex min-h-12 items-center justify-between gap-3 rounded-lg border px-2 py-2 transition",
+          "flex min-h-10 items-center justify-center gap-1.5 rounded-lg border px-1.5 py-1.5 transition md:min-h-12 md:justify-between md:gap-3 md:px-2 md:py-2",
           isWinner ? "text-white shadow-[0_0_18px_rgba(180,151,90,0.24)]" : "border-white/10 bg-black/25 text-frost"
         )}
         style={
@@ -569,28 +569,28 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
             : undefined
         }
       >
-        <div className="flex min-w-0 items-center gap-2">
+        <div className="flex min-w-0 items-center gap-1.5 md:gap-2">
           {isKnownTeam ? (
             <Image
               src={logoSrc(team.abbrev)}
               alt=""
               width={28}
               height={28}
-              className="h-7 w-7 shrink-0 object-contain"
+              className="h-6 w-6 shrink-0 object-contain md:h-7 md:w-7"
             />
           ) : (
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/15 text-[10px] font-bold text-mist">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/15 text-[8px] font-bold text-mist md:h-7 md:w-7 md:text-[10px]">
               TBD
             </span>
           )}
-          <div className="min-w-0">
+          <div className="hidden min-w-0 md:block">
             <p className="truncate text-sm font-bold">{team.abbrev}</p>
             <p className={cn("text-[10px] font-semibold uppercase tracking-[0.12em]", isWinner ? "text-white/78" : "text-mist")}>
               {team.seed || team.name}
             </p>
           </div>
         </div>
-        <p className={cn("text-xl font-bold", isWinner ? "text-white" : "text-gold-bright")}>{team.wins}</p>
+        <p className={cn("text-sm font-bold leading-none md:text-xl", isWinner ? "text-white" : "text-gold-bright")}>{team.wins}</p>
       </div>
     );
   }
@@ -625,7 +625,7 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
             alt="2026 Stanley Cup Final"
             width={160}
             height={130}
-            className="mx-auto my-5 h-36 w-auto object-contain"
+            className="mx-auto my-3 h-24 w-auto object-contain md:my-5 md:h-36"
           />
           <TeamRow seed="bottom" seriesLetter={letter} team={series.bottomSeed} />
 
@@ -679,14 +679,14 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
       >
         <div className="pb-1">
           {bracket.series.length ? (
-            <div className="mx-auto w-full max-w-[1680px] px-3 md:px-6">
-              <div className="relative min-h-[820px]">
+            <div className="mx-auto w-full max-w-[1680px] overflow-x-auto px-3 pb-2 md:overflow-visible md:px-6 md:pb-1">
+              <div className="relative min-h-[620px] min-w-[740px] md:min-h-[820px] md:min-w-0">
                 {bracketSlots.map((column) => (
                   <div
                     key={column.label}
-                    className={cn("absolute top-0 min-h-[780px]", column.x, column.width)}
+                    className={cn("absolute top-0 min-h-[580px] md:min-h-[780px]", column.x, column.width)}
                   >
-                    <p className="absolute left-0 right-0 top-0 text-center text-xs font-semibold uppercase tracking-[0.18em] text-gold-bright">
+                    <p className="absolute left-0 right-0 top-0 text-center text-[9px] font-semibold uppercase tracking-[0.12em] text-gold-bright md:text-xs md:tracking-[0.18em]">
                       {column.label}
                     </p>
                     {column.letters.map((letter) => (
