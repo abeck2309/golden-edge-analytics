@@ -1,7 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/container";
-import { siteConfig } from "@/lib/site-config";
+import { getVgkUpdates, type VgkUpdatesData } from "@/lib/nhl-api";
+
+export const dynamic = "force-dynamic";
+
+const logoAliases: Record<string, string> = {
+  NJD: "N.J",
+  TBL: "T.B"
+};
+
+function logoSrc(abbrev: string) {
+  return `/${logoAliases[abbrev] ?? abbrev}.png`;
+}
 
 const editorialRows = [
   {
@@ -38,7 +49,96 @@ const editorialRows = [
   }
 ];
 
-export default function HomePage() {
+function formatGameDate(value: string, options: Intl.DateTimeFormatOptions = {}) {
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Los_Angeles",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    ...options
+  }).format(new Date(value));
+}
+
+function HomeGamePanel({ data }: { data: VgkUpdatesData | null }) {
+  if (!data) {
+    return (
+      <section className="panel mt-8 p-5 md:p-6">
+        <p className="eyebrow">VGK Game</p>
+        <p className="mt-3 text-sm text-mist">Game data is temporarily unavailable.</p>
+      </section>
+    );
+  }
+
+  const featured = data.overview.featuredGame;
+  const showFeatured = featured?.isToday;
+  const nextGame = data.overview.nextGame;
+  const latestGame = data.overview.latestGame;
+  const label = showFeatured ? featured.label : nextGame ? "Next Game" : "Latest Game";
+  const opponentAbbrev = showFeatured ? featured.opponentAbbrev : nextGame?.opponentAbbrev;
+  const opponentName = showFeatured ? featured.opponent : nextGame?.opponent;
+  const homeAway = showFeatured ? featured.homeAway : nextGame?.homeAway;
+  const date = showFeatured ? featured.date : nextGame?.date ?? latestGame.date;
+  const score = showFeatured ? featured.score : nextGame ? null : latestGame.score;
+  const status = showFeatured ? featured.status : nextGame?.status ?? latestGame.result;
+
+  return (
+    <section className="panel mt-8 overflow-hidden p-5 md:p-6">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="eyebrow">VGK Game</p>
+          <h2 className="mt-3 font-[family-name:var(--font-heading)] text-2xl font-bold text-white md:text-4xl">
+            {label}
+          </h2>
+          <p className="mt-2 text-sm text-mist md:text-base">
+            {formatGameDate(date)}
+            {homeAway ? ` | ${homeAway}` : ""}
+            {status ? ` | ${status}` : ""}
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
+          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-4">
+            <Image src="/VGK.png" alt="" width={52} height={52} className="h-12 w-12 object-contain" />
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-bright">Vegas</p>
+              <p className="font-bold text-white">Golden Knights</p>
+            </div>
+          </div>
+          <div className="text-center font-[family-name:var(--font-heading)] text-3xl font-bold text-white">
+            {score ?? "VS"}
+          </div>
+          <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-4">
+            {opponentAbbrev ? (
+              <Image src={logoSrc(opponentAbbrev)} alt="" width={52} height={52} className="h-12 w-12 object-contain" />
+            ) : null}
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-bright">Opponent</p>
+              <p className="font-bold text-white">{opponentName ?? latestGame.opponent}</p>
+            </div>
+          </div>
+        </div>
+
+        <Link
+          href="/vgk-updates#live-game"
+          className="inline-flex items-center justify-center rounded-full bg-gold px-5 py-3 text-sm font-semibold text-ink hover:bg-gold-bright"
+        >
+          Open Game Center
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+export default async function HomePage() {
+  let vgkData: VgkUpdatesData | null = null;
+
+  try {
+    vgkData = await getVgkUpdates();
+  } catch {
+    vgkData = null;
+  }
+
   return (
     <Container className="pb-24 pt-8 md:pt-12">
       <section className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#0c1015]">
@@ -82,6 +182,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      <HomeGamePanel data={vgkData} />
 
       <section className="grid gap-10 px-2 py-14 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
         <div className="space-y-5">

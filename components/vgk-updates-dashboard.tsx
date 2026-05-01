@@ -46,6 +46,34 @@ function detailScoreLine(detail: VgkGameDetail | null) {
 }
 
 type GoalEvent = VgkGameDetail["scoringByPeriod"][number]["goals"][number];
+type MilestoneWatchItem = {
+  label: string;
+  name: string;
+  playerId?: number;
+  value: number;
+  target: number;
+  remaining: number;
+};
+
+function nextMilestoneTarget(value: number) {
+  const step = value >= 100 ? 25 : 10;
+  return Math.ceil((value + 1) / step) * step;
+}
+
+function buildMilestoneWatchItems(data: VgkUpdatesData): MilestoneWatchItem[] {
+  return data.leaderGroups.regularSeason.leaders.map((leader) => {
+    const target = nextMilestoneTarget(leader.value);
+
+    return {
+      label: leader.label,
+      name: leader.name,
+      playerId: leader.playerId,
+      value: leader.value,
+      target,
+      remaining: target - leader.value
+    };
+  });
+}
 
 function formatShotType(value?: string) {
   if (!value) {
@@ -474,12 +502,14 @@ function GameDetailPanel({
   detail,
   error,
   loading,
+  milestones,
   onOpenGoalPopup,
   onOpenPlayer
 }: {
   detail: VgkGameDetail | null;
   error: string | null;
   loading: boolean;
+  milestones: MilestoneWatchItem[];
   onOpenGoalPopup: (goal: GoalEvent) => void;
   onOpenPlayer: (playerId: number) => void;
 }) {
@@ -552,7 +582,7 @@ function GameDetailPanel({
         <StatTile label="Game State" value={detail.gameState} />
       </div>
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
+      <div className="mt-6 grid gap-4 lg:grid-cols-2 lg:items-stretch">
         <div className="rounded-xl border border-white/10 bg-[#0c1015]/80 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-bright">VGK Point Scorers</p>
           <div className="mt-3 space-y-3">
@@ -571,24 +601,64 @@ function GameDetailPanel({
           </div>
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-[#0c1015]/80 p-4">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-bright">VGK Goalies</p>
-          <div className="mt-3 space-y-3">
-            {detail.vgk.goalieSummary.length ? (
-              detail.vgk.goalieSummary.map((goalie) => (
-                <div key={goalie.name} className="flex items-center justify-between gap-4">
-                  <div>
-                    <PlayerNameButton playerId={goalie.playerId} onOpen={onOpenPlayer}>
-                      {goalie.name}
-                    </PlayerNameButton>
-                    <p className="text-sm text-mist">{goalie.line}</p>
+        <div className="grid gap-4">
+          <div className="rounded-xl border border-white/10 bg-[#0c1015]/80 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-bright">VGK Goalies</p>
+            <div className="mt-3 space-y-3">
+              {detail.vgk.goalieSummary.length ? (
+                detail.vgk.goalieSummary.map((goalie) => (
+                  <div key={goalie.name} className="flex items-center justify-between gap-4">
+                    <div>
+                      <PlayerNameButton playerId={goalie.playerId} onOpen={onOpenPlayer}>
+                        {goalie.name}
+                      </PlayerNameButton>
+                      <p className="text-sm text-mist">{goalie.line}</p>
+                    </div>
+                    <p className="text-sm font-semibold text-gold-bright">{goalie.savePctg}</p>
                   </div>
-                  <p className="text-sm font-semibold text-gold-bright">{goalie.savePctg}</p>
+                ))
+              ) : (
+                <p className="text-sm text-mist">No goalie stats available.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-white/10 bg-[#0c1015]/80 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-gold-bright">Milestone Watch</p>
+            <div className="mt-3 grid gap-2">
+              {milestones.map((milestone) => (
+                <div key={milestone.label} className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">
+                      {milestone.label}
+                    </p>
+                    <PlayerNameButton playerId={milestone.playerId} onOpen={onOpenPlayer}>
+                      {milestone.name}
+                    </PlayerNameButton>
+                  </div>
+                  <p className="text-right text-xs font-semibold text-gold-bright">
+                    {milestone.remaining} from {milestone.target}
+                  </p>
                 </div>
-              ))
-            ) : (
-              <p className="text-sm text-mist">No goalie stats available.</p>
-            )}
+              ))}
+            </div>
+          </div>
+
+          <div className="grid overflow-hidden rounded-xl border border-white/10 bg-[#0c1015]/80 sm:grid-cols-2">
+            {[detail.awayTeam, detail.homeTeam].map((team, index) => (
+              <div key={team.abbrev} className={cn("flex items-center gap-3 p-4", index === 1 && "border-t border-white/10 sm:border-l sm:border-t-0")}>
+                <Image src={logoSrc(team.abbrev)} alt="" width={48} height={48} className="h-12 w-12 object-contain" />
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-mist">
+                    {index === 0 ? "Away" : "Home"}
+                  </p>
+                  <p className="font-bold text-white">{team.abbrev}</p>
+                  <p className="text-xs text-mist">
+                    {team.score} goals | {team.shots} shots
+                  </p>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -765,6 +835,7 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
   const featuredGameStatus = selectedFeaturedGame && detail?.id === selectedFeaturedGame.id
     ? detail.gameState
     : currentData.overview.featuredGame?.status;
+  const milestoneWatchItems = useMemo(() => buildMilestoneWatchItems(currentData), [currentData]);
 
   useEffect(() => {
     let isCurrent = true;
@@ -962,6 +1033,7 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
           detail={detail}
           error={detailError}
           loading={detailLoading}
+          milestones={milestoneWatchItems}
           onOpenGoalPopup={showGoalPopup}
           onOpenPlayer={setSelectedPlayerId}
         />

@@ -847,7 +847,9 @@ export async function getVgkUpdates() {
       },
       nextGame: nextScheduleGame
         ? {
+            id: nextScheduleGame.id,
             opponent: displayTeamName(getOpponent(nextScheduleGame)),
+            opponentAbbrev: getOpponent(nextScheduleGame).abbrev,
             date: nextScheduleGame.startTimeUTC ?? nextScheduleGame.gameDate,
             homeAway: getVgkSide(nextScheduleGame) === "home" ? "Home" : "Away",
             status: nextScheduleGame.gameScheduleState ?? nextScheduleGame.gameState
