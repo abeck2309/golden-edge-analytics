@@ -605,7 +605,6 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
     if (!series) {
       return (
         <div className="w-full">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">Series {letter}</p>
           <div className="space-y-2">
             {["top", "bottom"].map((seed) => (
               <div key={seed} className="rounded-lg border border-white/10 bg-black/20 px-2 py-2 text-sm font-bold text-mist">
@@ -620,15 +619,6 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
     if (letter === "O") {
       return (
         <div className="w-full">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">
-              Series {series.seriesLetter || letter}
-            </p>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold-bright">
-              {series.seriesAbbrev}
-            </p>
-          </div>
-
           <TeamRow seed="top" seriesLetter={letter} team={series.topSeed} />
           <Image
             src="/stanley-cup-final-2026.svg"
@@ -639,28 +629,25 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
           />
           <TeamRow seed="bottom" seriesLetter={letter} team={series.bottomSeed} />
 
-          <p className="mt-3 text-center text-xs font-semibold text-mist">{series.status}</p>
+          <div className="mt-3 flex items-center justify-between gap-3 text-xs font-semibold">
+            <p className="text-mist">{series.status}</p>
+            <p className="shrink-0 uppercase tracking-[0.16em] text-gold-bright">{series.seriesAbbrev}</p>
+          </div>
         </div>
       );
     }
 
     return (
       <div className="w-full">
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">
-            Series {series.seriesLetter || letter}
-          </p>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold-bright">
-            {series.seriesAbbrev}
-          </p>
-        </div>
-
         <div className="space-y-2">
           <TeamRow seed="top" seriesLetter={letter} team={series.topSeed} />
           <TeamRow seed="bottom" seriesLetter={letter} team={series.bottomSeed} />
         </div>
 
-        <p className="mt-3 text-xs font-semibold text-mist">{series.status}</p>
+        <div className="mt-3 flex items-center justify-between gap-3 text-xs font-semibold">
+          <p className="text-mist">{series.status}</p>
+          <p className="shrink-0 uppercase tracking-[0.16em] text-gold-bright">{series.seriesAbbrev}</p>
+        </div>
       </div>
     );
   }
