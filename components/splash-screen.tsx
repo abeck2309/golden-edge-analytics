@@ -21,8 +21,8 @@ export function SplashScreen() {
 
     sessionStorage.setItem("golden-edge-splash-played", "true");
 
-    const exitTimer = window.setTimeout(() => setIsExiting(true), 5200);
-    const doneTimer = window.setTimeout(() => setShowSplash(false), 6000);
+    const exitTimer = window.setTimeout(() => setIsExiting(true), 6700);
+    const doneTimer = window.setTimeout(() => setShowSplash(false), 7400);
 
     return () => {
       window.clearTimeout(exitTimer);
@@ -57,6 +57,36 @@ export function SplashScreen() {
             className="splash-outline-glow-image"
           />
         </div>
+        <svg
+          className="splash-v-trace"
+          viewBox="0 0 480 480"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <filter id="splash-red-glow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feColorMatrix
+              in="blur"
+              type="matrix"
+              values="1 0 0 0 0.784 0 0 0 0 0.063 0 0 0 0 0.18 0 0 0 1 0"
+              result="redBlur"
+            />
+            <feMerge>
+              <feMergeNode in="redBlur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+          <path
+            className="splash-v-trace-path splash-v-trace-halo"
+            d="M 224 398 L 148 181 L 219 214 L 240 305 L 266 219 L 340 178 L 262 391"
+            pathLength="1"
+          />
+          <path
+            className="splash-v-trace-path"
+            d="M 224 398 L 148 181 L 219 214 L 240 305 L 266 219 L 340 178 L 262 391"
+            pathLength="1"
+          />
+        </svg>
       </div>
     </div>
   );
