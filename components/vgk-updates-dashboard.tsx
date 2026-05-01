@@ -74,16 +74,16 @@ function StatTile({
   value: string | number;
 }) {
   return (
-    <div className={cn("rounded-xl border border-white/10 bg-white/[0.035] p-4", compact && "p-2.5 sm:p-3 md:p-4")}>
+    <div className={cn("rounded-xl border border-white/10 bg-white/[0.035] p-4", compact && "p-2 sm:p-2.5 md:p-4")}>
       <p
         className={cn(
           "text-xs font-semibold uppercase tracking-[0.2em] text-mist",
-          compact && "text-[0.56rem] tracking-[0.15em] sm:text-[0.65rem] md:text-xs md:tracking-[0.2em]"
+          compact && "text-[0.5rem] tracking-[0.12em] sm:text-[0.58rem] md:text-xs md:tracking-[0.2em]"
         )}
       >
         {label}
       </p>
-      <p className={cn("mt-2 text-2xl font-bold text-white", compact && "mt-1.5 text-lg leading-tight sm:text-xl md:mt-2 md:text-2xl")}>
+      <p className={cn("mt-2 text-2xl font-bold text-white", compact && "mt-1 text-base leading-tight sm:text-lg md:mt-2 md:text-2xl")}>
         {value}
       </p>
     </div>
@@ -1224,17 +1224,17 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
   return (
     <>
       <section className="panel overflow-hidden p-4 sm:p-5 md:p-8">
-        <div className="grid gap-4 md:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+        <div className="grid gap-3 md:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
           <div>
             <p className="eyebrow">VGK Updates</p>
-            <h1 className="mt-2 font-[family-name:var(--font-heading)] text-[2rem] font-bold leading-[1.02] tracking-tight text-white sm:mt-3 sm:text-4xl md:text-6xl">
+            <h1 className="mt-3 hidden font-[family-name:var(--font-heading)] text-6xl font-bold tracking-tight text-white md:block">
               Golden Knights Live Dashboard
             </h1>
-            <p className="mt-3 max-w-4xl whitespace-nowrap text-[0.62rem] leading-5 text-mist sm:text-xs md:mt-4 md:text-sm md:leading-7 lg:text-base">
+            <p className="mt-2 max-w-4xl text-[0.65rem] leading-4 text-mist sm:text-xs md:mt-4 md:whitespace-nowrap md:text-sm md:leading-7 lg:text-base">
               1x Stanley Cup Champion, 2x Western Conference Champions, 5x Pacific Division Champions
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:ml-6">
+          <div className="grid max-w-[20rem] grid-cols-2 gap-2 sm:max-w-[22rem] sm:gap-2.5 md:max-w-none md:gap-3 lg:ml-6">
             <StatTile compact label="Record" value={currentData.overview.teamSnapshot?.record ?? "N/A"} />
             <StatTile compact label="Points" value={currentData.overview.teamSnapshot?.points ?? "N/A"} />
             <StatTile compact label="Division" value={currentData.overview.teamSnapshot?.standingsPosition ?? "N/A"} />
