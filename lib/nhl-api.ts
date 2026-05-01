@@ -476,6 +476,50 @@ function goalieSummary(players?: TeamGamePlayers) {
     }));
 }
 
+function nextCareerMilestoneTarget(value: number) {
+  const step = value >= 100 ? 25 : 10;
+  return Math.ceil((value + 1) / step) * step;
+}
+
+async function careerMilestonesForTeam(players?: TeamGamePlayers) {
+  const skaters = collectSkaters(players).slice(0, 22);
+  const playerResults = await Promise.allSettled(
+    skaters.map(async (player) => {
+      const landing = await nhlApiFetch<PlayerLanding>(nhlEndpoints.playerLanding(player.playerId));
+      const career = landing.featuredStats?.regularSeason?.career;
+      const candidates = [
+        { label: "Career Goals", value: career?.goals ?? 0 },
+        { label: "Career Assists", value: career?.assists ?? 0 },
+        { label: "Career Points", value: career?.points ?? 0 }
+      ]
+        .filter((candidate) => candidate.value > 0)
+        .map((candidate) => {
+          const target = nextCareerMilestoneTarget(candidate.value);
+          return {
+            ...candidate,
+            target,
+            remaining: target - candidate.value
+          };
+        })
+        .sort((a, b) => a.remaining - b.remaining || b.value - a.value);
+
+      const closest = candidates[0];
+      if (!closest) return null;
+
+      return {
+        playerId: player.playerId,
+        name: player.name.default ?? nameFromParts(landing.firstName, landing.lastName),
+        ...closest
+      };
+    })
+  );
+
+  return playerResults
+    .flatMap((result) => (result.status === "fulfilled" && result.value ? [result.value] : []))
+    .sort((a, b) => a.remaining - b.remaining || b.value - a.value)
+    .slice(0, 3);
+}
+
 function periodKey(period: { number: number; periodType: string }) {
   return period.periodType === "REG" ? String(period.number) : `${period.periodType}-${period.number}`;
 }
@@ -684,7 +728,13 @@ export async function getVgkGameDetail(gameId: number) {
 
   const side = getVgkSide(boxscore);
   const players = side === "away" ? boxscore.playerByGameStats?.awayTeam : boxscore.playerByGameStats?.homeTeam;
+  const awayPlayers = boxscore.playerByGameStats?.awayTeam;
+  const homePlayers = boxscore.playerByGameStats?.homeTeam;
   const goals = scoringBreakdown(playByPlay, boxscore);
+  const [awayMilestones, homeMilestones] = await Promise.all([
+    careerMilestonesForTeam(awayPlayers),
+    careerMilestonesForTeam(homePlayers)
+  ]);
 
   return {
     id: boxscore.id,
@@ -707,6 +757,16 @@ export async function getVgkGameDetail(gameId: number) {
       side,
       topPointScorers: topPointScorers(players, 6),
       goalieSummary: goalieSummary(players)
+    },
+    milestoneWatch: {
+      awayTeam: {
+        abbrev: boxscore.awayTeam.abbrev,
+        items: awayMilestones
+      },
+      homeTeam: {
+        abbrev: boxscore.homeTeam.abbrev,
+        items: homeMilestones
+      }
     },
     teamStats: teamStatsFor(rightRail, boxscore),
     scoringByPeriod: rightRail.linescore?.byPeriod?.map((period) => {
