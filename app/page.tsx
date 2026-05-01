@@ -11,7 +11,7 @@ const logoAliases: Record<string, string> = {
 };
 
 function logoSrc(abbrev: string) {
-  return `/${logoAliases[abbrev] ?? abbrev}.png`;
+  return `/${logoAliases[abbrev] ?? abbrev}.svg`;
 }
 
 const editorialRows = [
@@ -99,7 +99,7 @@ function HomeGamePanel({ data }: { data: VgkUpdatesData | null }) {
 
         <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">
           <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.035] p-4">
-            <Image src="/VGK.png" alt="" width={52} height={52} className="h-12 w-12 object-contain" />
+            <Image src="/VGK.svg" alt="" width={52} height={52} className="h-12 w-12 object-contain" />
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-bright">Vegas</p>
               <p className="font-bold text-white">Golden Knights</p>

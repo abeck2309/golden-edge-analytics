@@ -47,7 +47,7 @@ const teamPrimaryColors: Record<string, string> = {
 };
 
 function logoSrc(abbrev: string) {
-  return `/${logoAliases[abbrev] ?? abbrev}.png`;
+  return `/${logoAliases[abbrev] ?? abbrev}.svg`;
 }
 
 function teamPrimaryColor(abbrev: string) {
