@@ -5,14 +5,89 @@ import type { VgkPlayerCardData } from "@/lib/nhl-api";
 import { cn } from "@/lib/cn";
 
 type CareerSeason = VgkPlayerCardData["careerBySeason"][number];
+type SeasonFilter = "both" | "regular" | "playoffs";
+
+function parseTimeToSeconds(time: string) {
+  if (!time || time === "N/A") return 0;
+  const parts = time.split(":").map((part) => Number(part));
+  if (parts.some((part) => Number.isNaN(part))) return 0;
+  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+  if (parts.length === 2) return parts[0] * 60 + parts[1];
+  return 0;
+}
+
+function formatAverageTime(totalWeightedSeconds: number, gamesPlayed: number) {
+  if (!gamesPlayed) return "N/A";
+  const seconds = Math.round(totalWeightedSeconds / gamesPlayed);
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+}
+
+function formatSavePctg(shotsAgainst: number, goalsAgainst: number, fallbackPctg: number) {
+  if (shotsAgainst > 0) {
+    return ((shotsAgainst - goalsAgainst) / shotsAgainst).toFixed(3).replace(/^0/, "");
+  }
+
+  return fallbackPctg > 0 ? fallbackPctg.toFixed(3).replace(/^0/, "") : ".000";
+}
+
+function buildCareerTotal(seasons: CareerSeason[], gameType: CareerSeason["gameType"]): CareerSeason | null {
+  if (seasons.length === 0) return null;
+
+  const gamesPlayed = seasons.reduce((total, season) => total + season.gamesPlayed, 0);
+  const shotsAgainst = seasons.reduce((total, season) => total + season.shotsAgainst, 0);
+  const goalsAgainst = seasons.reduce((total, season) => total + season.goalsAgainst, 0);
+  const weightedAtoiSeconds = seasons.reduce(
+    (total, season) => total + parseTimeToSeconds(season.avgToi) * season.gamesPlayed,
+    0
+  );
+  const weightedGaa = seasons.reduce(
+    (total, season) => total + Number(season.goalsAgainstAvg || 0) * season.gamesPlayed,
+    0
+  );
+  const weightedSavePctg = seasons.reduce(
+    (total, season) => total + Number(`0${season.savePctg}`) * season.gamesPlayed,
+    0
+  );
+
+  return {
+    season: "Career",
+    gameType,
+    team: "NHL",
+    gamesPlayed,
+    goals: seasons.reduce((total, season) => total + season.goals, 0),
+    assists: seasons.reduce((total, season) => total + season.assists, 0),
+    points: seasons.reduce((total, season) => total + season.points, 0),
+    plusMinus: seasons.reduce((total, season) => total + season.plusMinus, 0),
+    pim: seasons.reduce((total, season) => total + season.pim, 0),
+    shots: seasons.reduce((total, season) => total + season.shots, 0),
+    avgToi: formatAverageTime(weightedAtoiSeconds, gamesPlayed),
+    gamesStarted: seasons.reduce((total, season) => total + season.gamesStarted, 0),
+    wins: seasons.reduce((total, season) => total + season.wins, 0),
+    losses: seasons.reduce((total, season) => total + season.losses, 0),
+    otLosses: seasons.reduce((total, season) => total + season.otLosses, 0),
+    goalsAgainstAvg: gamesPlayed > 0 ? (weightedGaa / gamesPlayed).toFixed(2) : "0.00",
+    savePctg: formatSavePctg(shotsAgainst, goalsAgainst, gamesPlayed > 0 ? weightedSavePctg / gamesPlayed : 0),
+    shutouts: seasons.reduce((total, season) => total + season.shutouts, 0),
+    shotsAgainst,
+    goalsAgainst
+  };
+}
 
 export function PlayerCareerTable({ isGoalie, seasons }: { isGoalie: boolean; seasons: CareerSeason[] }) {
-  const [filter, setFilter] = useState<"both" | "regular" | "playoffs">("both");
+  const [filter, setFilter] = useState<SeasonFilter>("both");
 
   const filteredSeasons = useMemo(() => {
     if (filter === "regular") return seasons.filter((season) => season.gameType === "Regular Season");
     if (filter === "playoffs") return seasons.filter((season) => season.gameType === "Playoffs");
     return seasons;
+  }, [filter, seasons]);
+
+  const careerTotal = useMemo(() => {
+    const totalGameType = filter === "playoffs" ? "Playoffs" : "Regular Season";
+    const totalSeasons = seasons.filter((season) => season.gameType === totalGameType);
+    return buildCareerTotal(totalSeasons, totalGameType);
   }, [filter, seasons]);
 
   return (
@@ -105,6 +180,36 @@ export function PlayerCareerTable({ isGoalie, seasons }: { isGoalie: boolean; se
                 )}
               </tr>
             ))}
+            {careerTotal ? (
+              <tr className="border-t border-gold/40 bg-gold/10 font-semibold text-gold-bright">
+                <td className="px-4 py-3">Career</td>
+                <td className="px-4 py-3">{careerTotal.gameType}</td>
+                <td className="px-4 py-3">{careerTotal.team}</td>
+                <td className="px-4 py-3 text-right">{careerTotal.gamesPlayed}</td>
+                {isGoalie ? (
+                  <>
+                    <td className="px-4 py-3 text-right">{careerTotal.gamesStarted}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.wins}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.losses}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.otLosses}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.goalsAgainstAvg}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.savePctg}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.shutouts}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.shotsAgainst}</td>
+                  </>
+                ) : (
+                  <>
+                    <td className="px-4 py-3 text-right">{careerTotal.goals}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.assists}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.points}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.plusMinus}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.pim}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.shots}</td>
+                    <td className="px-4 py-3 text-right">{careerTotal.avgToi}</td>
+                  </>
+                )}
+              </tr>
+            ) : null}
           </tbody>
         </table>
       </div>
