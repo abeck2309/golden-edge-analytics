@@ -64,11 +64,28 @@ function formatDate(value: string, options: Intl.DateTimeFormatOptions = {}) {
   }).format(new Date(value));
 }
 
-function StatTile({ label, value }: { label: string; value: string | number }) {
+function StatTile({
+  compact = false,
+  label,
+  value
+}: {
+  compact?: boolean;
+  label: string;
+  value: string | number;
+}) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.035] p-4">
-      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-mist">{label}</p>
-      <p className="mt-2 text-2xl font-bold text-white">{value}</p>
+    <div className={cn("rounded-xl border border-white/10 bg-white/[0.035] p-4", compact && "p-2.5 sm:p-3 md:p-4")}>
+      <p
+        className={cn(
+          "text-xs font-semibold uppercase tracking-[0.2em] text-mist",
+          compact && "text-[0.56rem] tracking-[0.15em] sm:text-[0.65rem] md:text-xs md:tracking-[0.2em]"
+        )}
+      >
+        {label}
+      </p>
+      <p className={cn("mt-2 text-2xl font-bold text-white", compact && "mt-1.5 text-lg leading-tight sm:text-xl md:mt-2 md:text-2xl")}>
+        {value}
+      </p>
     </div>
   );
 }
@@ -1206,22 +1223,23 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
 
   return (
     <>
-      <section className="panel overflow-hidden p-6 md:p-8">
-        <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+      <section className="panel overflow-hidden p-4 sm:p-5 md:p-8">
+        <div className="grid gap-4 md:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
           <div>
             <p className="eyebrow">VGK Updates</p>
-            <h1 className="mt-3 font-[family-name:var(--font-heading)] text-4xl font-bold tracking-tight text-white md:text-6xl">
+            <h1 className="mt-2 font-[family-name:var(--font-heading)] text-[2rem] font-bold leading-[1.02] tracking-tight text-white sm:mt-3 sm:text-4xl md:text-6xl">
               Golden Knights Live Dashboard
             </h1>
-            <p className="mt-4 max-w-4xl whitespace-nowrap text-xs leading-7 text-mist md:text-sm lg:text-base">
+            <p className="mt-3 max-w-4xl whitespace-nowrap text-[0.62rem] leading-5 text-mist sm:text-xs md:mt-4 md:text-sm md:leading-7 lg:text-base">
               1x Stanley Cup Champion, 2x Western Conference Champions, 5x Pacific Division Champions
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3 lg:ml-6">
-            <StatTile label="Record" value={currentData.overview.teamSnapshot?.record ?? "N/A"} />
-            <StatTile label="Points" value={currentData.overview.teamSnapshot?.points ?? "N/A"} />
-            <StatTile label="Division" value={currentData.overview.teamSnapshot?.standingsPosition ?? "N/A"} />
+          <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:ml-6">
+            <StatTile compact label="Record" value={currentData.overview.teamSnapshot?.record ?? "N/A"} />
+            <StatTile compact label="Points" value={currentData.overview.teamSnapshot?.points ?? "N/A"} />
+            <StatTile compact label="Division" value={currentData.overview.teamSnapshot?.standingsPosition ?? "N/A"} />
             <StatTile
+              compact
               label={currentData.overview.featuredGame?.label ?? "Latest Game"}
               value={liveDetailScore ?? currentData.overview.featuredGame?.score ?? currentData.overview.latestGame.score}
             />
