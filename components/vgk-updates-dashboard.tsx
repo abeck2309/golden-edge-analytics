@@ -540,7 +540,7 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
       <div
         key={`${seriesLetter}-${seed}-${team.abbrev}`}
         className={cn(
-          "mt-2 flex items-center justify-between gap-3 rounded-lg border px-2 py-2 transition",
+          "flex min-h-12 items-center justify-between gap-3 rounded-lg border px-2 py-2 transition",
           isWinner ? "text-white shadow-[0_0_18px_rgba(180,151,90,0.24)]" : "border-white/10 bg-black/25 text-frost"
         )}
         style={
@@ -587,22 +587,49 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
 
     if (!series) {
       return (
-        <article className="rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">Series {letter}</p>
-          <div className="mt-3 space-y-2">
+        <div className="flex h-full flex-col justify-center">
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">Series {letter}</p>
+          <div className="space-y-2">
             {["top", "bottom"].map((seed) => (
               <div key={seed} className="rounded-lg border border-white/10 bg-black/20 px-2 py-2 text-sm font-bold text-mist">
                 TBD
               </div>
             ))}
           </div>
-        </article>
+        </div>
+      );
+    }
+
+    if (letter === "O") {
+      return (
+        <div className="flex h-full min-h-[360px] flex-col justify-center">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">
+              Series {series.seriesLetter || letter}
+            </p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold-bright">
+              {series.seriesAbbrev}
+            </p>
+          </div>
+
+          <TeamRow seed="top" seriesLetter={letter} team={series.topSeed} />
+          <Image
+            src="/stanley-cup-final-2026.svg"
+            alt="2026 Stanley Cup Final"
+            width={160}
+            height={130}
+            className="mx-auto my-5 h-36 w-auto object-contain"
+          />
+          <TeamRow seed="bottom" seriesLetter={letter} team={series.bottomSeed} />
+
+          <p className="mt-3 text-center text-xs font-semibold text-mist">{series.status}</p>
+        </div>
       );
     }
 
     return (
-      <article className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-        <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+      <div className="flex h-full flex-col justify-center">
+        <div className="mb-2 flex items-center justify-between gap-3">
           <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">
             Series {series.seriesLetter || letter}
           </p>
@@ -611,11 +638,13 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
           </p>
         </div>
 
-        <TeamRow seed="top" seriesLetter={letter} team={series.topSeed} />
-        <TeamRow seed="bottom" seriesLetter={letter} team={series.bottomSeed} />
+        <div className="space-y-2">
+          <TeamRow seed="top" seriesLetter={letter} team={series.topSeed} />
+          <TeamRow seed="bottom" seriesLetter={letter} team={series.bottomSeed} />
+        </div>
 
         <p className="mt-3 text-xs font-semibold text-mist">{series.status}</p>
-      </article>
+      </div>
     );
   }
 
@@ -647,7 +676,7 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
                   <div
                     key={column.label}
                     className={cn(
-                      "flex rounded-xl border border-white/10 bg-[#0c1015]/70 p-4",
+                      "flex min-h-[760px] rounded-xl border border-white/10 bg-[#0c1015]/70 p-4",
                       column.side === "center" ? "flex-col justify-center" : "flex-col justify-between"
                     )}
                   >
@@ -658,8 +687,8 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
                       className={cn(
                         "mt-4 grid gap-3",
                         column.letters.length === 4 && "grid-rows-4",
-                        column.letters.length === 2 && "my-auto grid-rows-2 gap-20",
-                        column.letters.length === 1 && "my-auto"
+                        column.letters.length === 2 && "my-auto grid-rows-2 gap-28",
+                        column.letters.length === 1 && "my-auto h-full"
                       )}
                     >
                       {column.letters.map((letter) => (
