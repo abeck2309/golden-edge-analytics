@@ -470,6 +470,112 @@ function LeaderBox({
   );
 }
 
+function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBracket"] }) {
+  const [isOpen, setIsOpen] = useState(true);
+  const rounds = useMemo(() => {
+    const grouped = new Map<number, typeof bracket.series>();
+
+    bracket.series.forEach((series) => {
+      const round = series.round || 0;
+      grouped.set(round, [...(grouped.get(round) ?? []), series]);
+    });
+
+    return [...grouped.entries()]
+      .sort(([roundA], [roundB]) => roundA - roundB)
+      .map(([round, series]) => ({
+        round,
+        title: series[0]?.roundLabel ?? `Round ${round}`,
+        series
+      }));
+  }, [bracket.series]);
+
+  return (
+    <section className="mt-6 panel overflow-hidden p-5 md:p-6">
+      <button
+        type="button"
+        onClick={() => setIsOpen((current) => !current)}
+        aria-expanded={isOpen}
+        className="flex w-full items-center justify-between gap-4 text-left"
+      >
+        <div>
+          <p className="eyebrow">NHL Playoff Bracket</p>
+          <h2 className="mt-2 font-[family-name:var(--font-heading)] text-2xl font-bold text-white md:text-3xl">
+            {bracket.year} Stanley Cup Playoffs
+          </h2>
+        </div>
+        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/35 bg-gold/10 text-2xl font-bold text-gold-bright">
+          {isOpen ? "-" : "+"}
+        </span>
+      </button>
+
+      {isOpen ? (
+        <div className="mt-5">
+          {rounds.length ? (
+            <div className="overflow-x-auto pb-1">
+              <div className="grid min-w-[980px] gap-4 lg:grid-cols-4">
+                {rounds.map((round) => (
+                  <div key={round.round} className="rounded-xl border border-white/10 bg-[#0c1015]/70 p-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-bright">
+                      {round.title}
+                    </p>
+                    <div className="mt-4 grid gap-3">
+                      {round.series.map((series) => (
+                        <article key={series.seriesLetter} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                          <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">
+                              Series {series.seriesLetter || series.seriesAbbrev}
+                            </p>
+                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold-bright">
+                              {series.seriesAbbrev}
+                            </p>
+                          </div>
+
+                          {[series.topSeed, series.bottomSeed].map((team) => (
+                            <div
+                              key={`${series.seriesLetter}-${team.abbrev}-${team.seed}`}
+                              className={cn(
+                                "mt-2 flex items-center justify-between gap-3 rounded-lg px-2 py-2",
+                                team.isWinner ? "bg-gold/12 text-white" : "bg-black/20 text-frost"
+                              )}
+                            >
+                              <div className="flex min-w-0 items-center gap-2">
+                                <Image
+                                  src={logoSrc(team.abbrev)}
+                                  alt=""
+                                  width={28}
+                                  height={28}
+                                  className="h-7 w-7 shrink-0 object-contain"
+                                />
+                                <div className="min-w-0">
+                                  <p className="truncate text-sm font-bold">{team.abbrev}</p>
+                                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-mist">
+                                    {team.seed || team.name}
+                                  </p>
+                                </div>
+                              </div>
+                              <p className="text-xl font-bold text-gold-bright">{team.wins}</p>
+                            </div>
+                          ))}
+
+                          <p className="mt-3 text-xs font-semibold text-mist">{series.status}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <p className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-sm text-mist">
+              The NHL playoff bracket is not available yet for this season.
+            </p>
+          )}
+        </div>
+      ) : null}
+    </section>
+  );
+}
+
 function GameDetailPanel({
   detail,
   error,
@@ -986,6 +1092,8 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
           </div>
         </div>
       </section>
+
+      <PlayoffBracketPanel bracket={currentData.playoffBracket} />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <LeaderBox

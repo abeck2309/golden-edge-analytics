@@ -190,6 +190,34 @@ type ClubStatsResponse = {
   skaters: ClubStatsSkater[];
 };
 
+type PlayoffBracketTeam = {
+  id: number;
+  abbrev: string;
+  name?: LocalizedString;
+  commonName?: LocalizedString;
+  logo?: string;
+  darkLogo?: string;
+};
+
+type PlayoffBracketSeries = {
+  seriesTitle?: string;
+  seriesAbbrev?: string;
+  seriesLetter?: string;
+  playoffRound?: number;
+  topSeedRankAbbrev?: string;
+  topSeedWins?: number;
+  bottomSeedRankAbbrev?: string;
+  bottomSeedWins?: number;
+  winningTeamId?: number;
+  topSeedTeam?: PlayoffBracketTeam;
+  bottomSeedTeam?: PlayoffBracketTeam;
+};
+
+type PlayoffBracketResponse = {
+  bracketLogo?: string;
+  series?: PlayoffBracketSeries[];
+};
+
 type Leader = {
   label: string;
   name: string;
@@ -289,6 +317,7 @@ export const nhlEndpoints = {
   gameRightRail: (gameId: number) => `${NHL_WEB_BASE_URL}/gamecenter/${gameId}/right-rail`,
   playByPlay: (gameId: number) => `${NHL_WEB_BASE_URL}/gamecenter/${gameId}/play-by-play`,
   playerLanding: (playerId: number) => `${NHL_WEB_BASE_URL}/player/${playerId}/landing`,
+  playoffBracket: (year: number) => `${NHL_WEB_BASE_URL}/playoff-bracket/${year}`,
   clubStats: (season: number, gameType: 2 | 3) => `${NHL_WEB_BASE_URL}/club-stats/${VGK_ABBREV}/${season}/${gameType}`
 };
 
@@ -313,6 +342,10 @@ function nameFromParts(firstName?: LocalizedString, lastName?: LocalizedString) 
 
 function displayTeamName(team: TeamInGame) {
   return [team.placeName?.default, team.commonName?.default].filter(Boolean).join(" ");
+}
+
+function displayBracketTeamName(team?: PlayoffBracketTeam) {
+  return team?.commonName?.default ?? team?.name?.default ?? team?.abbrev ?? "TBD";
 }
 
 function ordinal(value?: number) {
@@ -425,6 +458,82 @@ function makeLeaders(clubStats: ClubStatsResponse) {
       makeLeader(clubStats.skaters, "Points", "points")
     ]
   };
+}
+
+function playoffYearFromSeason(season: number) {
+  const seasonText = String(season);
+  const endYear = Number(seasonText.slice(4));
+  return Number.isFinite(endYear) ? endYear : new Date().getFullYear();
+}
+
+function seriesLeaderText(series: PlayoffBracketSeries) {
+  const topWins = series.topSeedWins ?? 0;
+  const bottomWins = series.bottomSeedWins ?? 0;
+
+  if (series.winningTeamId) {
+    const winner =
+      series.winningTeamId === series.topSeedTeam?.id
+        ? series.topSeedTeam
+        : series.winningTeamId === series.bottomSeedTeam?.id
+          ? series.bottomSeedTeam
+          : undefined;
+
+    return `${displayBracketTeamName(winner)} won ${Math.max(topWins, bottomWins)}-${Math.min(topWins, bottomWins)}`;
+  }
+
+  if (topWins === bottomWins) {
+    return `Series tied ${topWins}-${bottomWins}`;
+  }
+
+  const leader = topWins > bottomWins ? series.topSeedTeam : series.bottomSeedTeam;
+  return `${displayBracketTeamName(leader)} leads ${Math.max(topWins, bottomWins)}-${Math.min(topWins, bottomWins)}`;
+}
+
+async function getPlayoffBracketForSeason(season: number) {
+  const year = playoffYearFromSeason(season);
+
+  try {
+    const bracket = await nhlApiFetch<PlayoffBracketResponse>(nhlEndpoints.playoffBracket(year));
+    const series = (bracket.series ?? [])
+      .filter((matchup) => matchup.topSeedTeam || matchup.bottomSeedTeam)
+      .map((matchup) => ({
+        seriesLetter: matchup.seriesLetter ?? "",
+        round: matchup.playoffRound ?? 0,
+        roundLabel: matchup.seriesTitle ?? matchup.seriesAbbrev ?? "Playoffs",
+        seriesAbbrev: matchup.seriesAbbrev ?? "",
+        status: seriesLeaderText(matchup),
+        topSeed: {
+          abbrev: matchup.topSeedTeam?.abbrev ?? "TBD",
+          id: matchup.topSeedTeam?.id,
+          logo: matchup.topSeedTeam?.darkLogo ?? matchup.topSeedTeam?.logo,
+          name: displayBracketTeamName(matchup.topSeedTeam),
+          seed: matchup.topSeedRankAbbrev ?? "",
+          wins: matchup.topSeedWins ?? 0,
+          isWinner: matchup.winningTeamId === matchup.topSeedTeam?.id
+        },
+        bottomSeed: {
+          abbrev: matchup.bottomSeedTeam?.abbrev ?? "TBD",
+          id: matchup.bottomSeedTeam?.id,
+          logo: matchup.bottomSeedTeam?.darkLogo ?? matchup.bottomSeedTeam?.logo,
+          name: displayBracketTeamName(matchup.bottomSeedTeam),
+          seed: matchup.bottomSeedRankAbbrev ?? "",
+          wins: matchup.bottomSeedWins ?? 0,
+          isWinner: matchup.winningTeamId === matchup.bottomSeedTeam?.id
+        }
+      }));
+
+    return {
+      logo: bracket.bracketLogo,
+      series,
+      year
+    };
+  } catch {
+    return {
+      logo: undefined,
+      series: [],
+      year
+    };
+  }
 }
 
 function teamStatsFor(rightRail: GameRightRail, game: GameBoxscore) {
@@ -860,11 +969,12 @@ export async function getVgkUpdates() {
   const schedule = await nhlApiFetch<ScheduleResponse>(nhlEndpoints.schedule);
   const currentSeason = schedule.games[0]?.season ?? new Date().getFullYear();
 
-  const [standings, roster, regularSeasonStats, playoffStats] = await Promise.all([
+  const [standings, roster, regularSeasonStats, playoffStats, playoffBracket] = await Promise.all([
     nhlApiFetch<StandingsResponse>(nhlEndpoints.standings),
     nhlApiFetch<RosterResponse>(nhlEndpoints.roster),
     nhlApiFetch<ClubStatsResponse>(nhlEndpoints.clubStats(currentSeason, 2)),
-    nhlApiFetch<ClubStatsResponse>(nhlEndpoints.clubStats(currentSeason, 3))
+    nhlApiFetch<ClubStatsResponse>(nhlEndpoints.clubStats(currentSeason, 3)),
+    getPlayoffBracketForSeason(currentSeason)
   ]);
 
   const completedGames = schedule.games.filter(isCompletedGame);
@@ -930,6 +1040,7 @@ export async function getVgkUpdates() {
       regularSeason: makeLeaders(regularSeasonStats),
       playoffs: makeLeaders(playoffStats)
     },
+    playoffBracket,
     games: completedGames.reverse().map((game) => {
       const side = getVgkSide(game);
       const opponent = getOpponent(game);
