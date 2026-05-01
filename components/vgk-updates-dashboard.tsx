@@ -666,12 +666,12 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
   }
 
   return (
-    <section className="mt-6 panel overflow-hidden p-5 md:p-6">
+    <section className="relative left-1/2 mt-8 w-screen -translate-x-1/2 overflow-hidden px-3 md:px-6">
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
         aria-expanded={isOpen}
-        className="flex w-full items-center justify-between gap-4 text-left"
+        className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 text-left"
       >
         <div>
           <p className="eyebrow">NHL Playoff Bracket</p>
@@ -685,10 +685,10 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
       </button>
 
       {isOpen ? (
-        <div className="mt-5">
+        <div className="mt-6">
           {bracket.series.length ? (
-            <div className="overflow-x-auto pb-1">
-              <div className="grid min-h-[820px] min-w-[1320px] grid-cols-7 gap-5">
+            <div className="mx-auto w-full max-w-[1680px]">
+              <div className="grid min-h-[820px] grid-cols-7 gap-3 xl:gap-5">
                 {bracketSlots.map((column) => (
                   <div
                     key={column.label}
