@@ -43,6 +43,8 @@ export function SplashScreen() {
     >
       <div className="splash-star-pattern splash-star-pattern-left" />
       <div className="splash-star-pattern splash-star-pattern-right" />
+      <div className="splash-armor-panels" />
+      <div className="splash-background-sheen" />
       <div className="splash-center-gradient" />
       <div className="splash-outline-shell">
         <img

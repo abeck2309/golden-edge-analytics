@@ -112,7 +112,7 @@ iframe:focus-visible {
 .splash-center-gradient {
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   background:
     linear-gradient(90deg, transparent calc(50% - 34px), #333f42 calc(50% - 14px), #000000 calc(50% + 14px), transparent calc(50% + 34px));
 }
@@ -147,9 +147,49 @@ iframe:focus-visible {
   clip-path: inset(0 0 0 50%);
 }
 
+.splash-armor-panels,
+.splash-background-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.splash-armor-panels {
+  z-index: 1;
+  opacity: 0.72;
+  background:
+    linear-gradient(127deg, transparent 0 20%, rgba(255, 255, 255, 0.065) 20.1% 20.45%, transparent 20.55% 100%),
+    linear-gradient(53deg, transparent 0 27%, rgba(255, 255, 255, 0.05) 27.1% 27.45%, transparent 27.55% 100%),
+    linear-gradient(127deg, transparent 0 67%, rgba(185, 151, 91, 0.18) 67.1% 67.42%, transparent 67.52% 100%),
+    linear-gradient(53deg, transparent 0 73%, rgba(185, 151, 91, 0.14) 73.1% 73.4%, transparent 73.5% 100%),
+    linear-gradient(90deg, transparent calc(50% - 88px), rgba(255, 255, 255, 0.035) calc(50% - 87px) calc(50% - 86px), transparent calc(50% - 85px) calc(50% + 85px), rgba(185, 151, 91, 0.12) calc(50% + 86px) calc(50% + 87px), transparent calc(50% + 88px));
+  background-size:
+    760px 520px,
+    680px 560px,
+    820px 580px,
+    720px 500px,
+    100% 100%;
+  background-position:
+    calc(50% - 510px) 8%,
+    calc(50% + 120px) 4%,
+    calc(50% - 380px) 68%,
+    calc(50% + 250px) 61%,
+    center;
+  mix-blend-mode: screen;
+}
+
+.splash-background-sheen {
+  z-index: 1;
+  background:
+    linear-gradient(115deg, transparent 0 34%, rgba(255, 255, 255, 0.11) 44%, rgba(185, 151, 91, 0.16) 48%, transparent 58% 100%);
+  opacity: 0;
+  transform: translateX(-42%);
+  animation: splash-background-sheen 7.4s ease-in-out forwards;
+}
+
 .splash-outline-shell {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   width: min(112vh, 96vw);
   aspect-ratio: 1;
 }
@@ -252,6 +292,23 @@ iframe:focus-visible {
   100% {
     transform: translate3d(0, -10px, 0);
     opacity: 0.12;
+  }
+}
+
+@keyframes splash-background-sheen {
+  0% {
+    opacity: 0;
+    transform: translateX(-42%);
+  }
+  18% {
+    opacity: 0.42;
+  }
+  68% {
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(42%);
   }
 }
 
