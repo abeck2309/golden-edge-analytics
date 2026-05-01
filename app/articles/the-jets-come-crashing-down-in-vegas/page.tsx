@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArticlePlayerLink } from "@/components/article-player-link";
 import { Container } from "@/components/container";
 import { PageIntro } from "@/components/page-intro";
 
@@ -31,8 +32,8 @@ export default function JetsComeCrashingDownInVegasArticlePage() {
         <div className="mt-8 space-y-6 text-sm leading-8 text-mist md:text-base">
           <p>
             Goals galore for the Golden Knights in this one, as Vegas dropped six goals on
-            Olympian Connor Hellebuyck en route to a 6-2 victory on home ice. Six different goal
-            scorers, six goals on the board. Jack Eichel had himself a four-point night, and he
+            Olympian <ArticlePlayerLink playerId={8476945}>Connor Hellebuyck</ArticlePlayerLink> en route to a 6-2 victory on home ice. Six different goal
+            scorers, six goals on the board. <ArticlePlayerLink playerId={8478403}>Jack Eichel</ArticlePlayerLink> had himself a four-point night, and he
             also recorded his first power-play goal of the season in game 81 of 82.
           </p>
 
@@ -52,10 +53,10 @@ export default function JetsComeCrashingDownInVegasArticlePage() {
 
           <p>
             The second period was eventful to say the least, with the Jets and Golden Knights
-            combining for seven penalties in the middle frame. Mark Stone changed the narrative,
+            combining for seven penalties in the middle frame. <ArticlePlayerLink playerId={8475913}>Mark Stone</ArticlePlayerLink> changed the narrative,
             potting his first shorthanded goal of the season to start the scoring for Vegas.
-            Towards the end of the second, Reilly Smith extended the Golden Knights&apos; lead by
-            deflecting Noah Hanifin&apos;s shot after a pressure-filled shift in the Winnipeg end.
+            Towards the end of the second, <ArticlePlayerLink playerId={8475191}>Reilly Smith</ArticlePlayerLink> extended the Golden Knights&apos; lead by
+            deflecting <ArticlePlayerLink playerId={8478396}>Noah Hanifin</ArticlePlayerLink>&apos;s shot after a pressure-filled shift in the Winnipeg end.
           </p>
 
           <p>

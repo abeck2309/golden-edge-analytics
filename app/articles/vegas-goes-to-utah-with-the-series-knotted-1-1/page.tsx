@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArticlePlayerLink } from "@/components/article-player-link";
 import { Container } from "@/components/container";
 import { PageIntro } from "@/components/page-intro";
 
@@ -31,8 +32,9 @@ export default function VegasUtahSeriesArticlePage() {
         <div className="mt-8 space-y-6 text-sm leading-8 text-mist md:text-base">
           <p>
             The Golden Knights split the first two games at T-Mobile Arena against the Utah
-            Mammoth. Vegas took game one 4-2 thanks to Nic Dowd's go-ahead tip-in goal with 12:40
-            remaining in the third period. In game one Vegas did a solid job limiting Utah and
+            Mammoth. Vegas took game one 4-2 thanks to{" "}
+            <ArticlePlayerLink playerId={8475343}>Nic Dowd</ArticlePlayerLink>&apos;s go-ahead
+            tip-in goal with 12:40 remaining in the third period. In game one Vegas did a solid job limiting Utah and
             slowing them down, but that was not the case in game two.
           </p>
 
@@ -52,11 +54,14 @@ export default function VegasUtahSeriesArticlePage() {
 
           <p>
             In game two Utah killed Vegas with their speed and yet again Utah's first line of
-            Guenther-Cooley-Yamamoto was the difference in this game. Logan Cooley has had himself
+            <ArticlePlayerLink playerId={8482699}>Guenther</ArticlePlayerLink>-
+            <ArticlePlayerLink playerId={8483431}>Cooley</ArticlePlayerLink>-
+            <ArticlePlayerLink playerId={8479977}>Yamamoto</ArticlePlayerLink> was the difference in this game.{" "}
+            <ArticlePlayerLink playerId={8483431}>Logan Cooley</ArticlePlayerLink> has had himself
             a fantastic start to the series, scoring two goals including the game winner in game
             two with six minutes left in regulation. The Mammoth's first line had an xG of 95.6%
             in game two. If Vegas wants to win this series they have to find a way to shut down
-            Logan Cooley's line.
+            <ArticlePlayerLink playerId={8483431}>Logan Cooley</ArticlePlayerLink>&apos;s line.
           </p>
 
           <p>

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArticlePlayerLink } from "@/components/article-player-link";
 import { Container } from "@/components/container";
 import { PageIntro } from "@/components/page-intro";
 
@@ -33,13 +34,16 @@ export default function GoldenKnightsVancouverArticlePage() {
             On Tuesday, April 7th, the Golden Knights wrapped up the season series with the
             Vancouver Canucks, which ended up being a sweep for Vegas. Another crucial two points
             were on the line once again for Vegas coming into this one. In the latter half of the
-            second period, the Golden Knights found themselves down 1-0 after Max Sasson snapped
-            one past Carter Hart. Based on Hart&apos;s reaction, that was definitely a goal he
+            second period, the Golden Knights found themselves down 1-0 after{" "}
+            <ArticlePlayerLink playerId={8484136}>Max Sasson</ArticlePlayerLink> snapped
+            one past <ArticlePlayerLink playerId={8479394}>Carter Hart</ArticlePlayerLink>. Based on{" "}
+            <ArticlePlayerLink playerId={8479394}>Hart</ArticlePlayerLink>&apos;s reaction, that was definitely a goal he
             wanted back, but thankfully for him that was the only goal he gave up that night.
           </p>
 
           <p>
-            A couple of minutes later, with 4:14 left in the second period, Brayden McNabb through
+            A couple of minutes later, with 4:14 left in the second period,{" "}
+            <ArticlePlayerLink playerId={8475188}>Brayden McNabb</ArticlePlayerLink> through
             traffic provided the game-tying goal and leveled the game at 1 heading into the second
             intermission. The score did not show that Vegas dominated this game, but they
             definitely controlled the majority of the play in this one despite being tied 1-1
@@ -63,17 +67,20 @@ export default function GoldenKnightsVancouverArticlePage() {
           <p>
             Recently the depth of the Golden Knights has been shown, and with 7:47 left in
             regulation Vegas&apos; fourth line connected for what would be the game-winning goal.
-            Cole Smith stripped the puck away from Liam Ohgren at the blue line, and from there
+            <ArticlePlayerLink playerId={8482062}>Cole Smith</ArticlePlayerLink> stripped the puck away from{" "}
+            <ArticlePlayerLink playerId={8483499}>Liam Ohgren</ArticlePlayerLink> at the blue line, and from there
             Vegas went to work. The two trade deadline acquisitions connected in the third period.
-            Nic Dowd found Cole Smith in the slot and he potted his second goal as a Golden
+            <ArticlePlayerLink playerId={8475343}>Nic Dowd</ArticlePlayerLink> found{" "}
+            <ArticlePlayerLink playerId={8482062}>Cole Smith</ArticlePlayerLink> in the slot and he potted his second goal as a Golden
             Knight.
           </p>
 
           <p>
-            His goal would end up being the difference in this one. Rasmus Andersson took an
+            His goal would end up being the difference in this one.{" "}
+            <ArticlePlayerLink playerId={8478397}>Rasmus Andersson</ArticlePlayerLink> took an
             interference penalty with 1:41 remaining in the third, and Vancouver pulled Tolopilo
             to make it a 6-on-4 man advantage. The Golden Knights were hemmed into their own zone
-            for the remainder of the game, but Carter Hart stood tall and preserved the win. Vegas
+            for the remainder of the game, but <ArticlePlayerLink playerId={8479394}>Carter Hart</ArticlePlayerLink> stood tall and preserved the win. Vegas
             is now 4-0-0 under John Tortorella and will look to build off of that against the
             Seattle Kraken on April 9th.
           </p>

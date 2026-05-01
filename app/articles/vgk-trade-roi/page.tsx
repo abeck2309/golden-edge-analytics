@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArticlePlayerLink } from "@/components/article-player-link";
 import { Container } from "@/components/container";
 import { PageIntro } from "@/components/page-intro";
 
@@ -48,27 +49,27 @@ export default function VgkTradeRoiArticlePage() {
               The Fleury Trade: A "Win" That Doesn&apos;t Feel Like One
             </h2>
             <p className="mt-4">
-              The Marc-Andre Fleury trade is the clearest example of where data and intuition
+              The <ArticlePlayerLink playerId={8470594}>Marc-Andre Fleury</ArticlePlayerLink> trade is the clearest example of where data and intuition
               diverge.
             </p>
             <p className="mt-4">
               The model shows it as a win for Vegas. On paper, that makes sense:
             </p>
             <ul className="mt-4 list-disc space-y-2 pl-6">
-              <li>Fleury&apos;s post-trade performance registers as negative value</li>
+              <li><ArticlePlayerLink playerId={8470594}>Fleury</ArticlePlayerLink>&apos;s post-trade performance registers as negative value</li>
               <li>The return produced essentially no NHL value</li>
               <li>Vegas shed a significant contract</li>
             </ul>
             <p className="mt-4">
               So statistically, it looks like Vegas moved out negative value and gained
-              flexibility. In terms of cap efficiency, Fleury&apos;s post-trade impact comes out
+              flexibility. In terms of cap efficiency, <ArticlePlayerLink playerId={8470594}>Fleury</ArticlePlayerLink>&apos;s post-trade impact comes out
               to -1.617 GSAx per million, driven largely by the situation he was traded into.
             </p>
             <p className="mt-4">
               But that does not tell the full story.
             </p>
             <p className="mt-4">
-              Fleury was traded into a Chicago team that was already struggling, and that context
+              <ArticlePlayerLink playerId={8470594}>Fleury</ArticlePlayerLink> was traded into a Chicago team that was already struggling, and that context
               heavily influenced his measured impact. The model captures the outcome, but not the
               environment it occurred in.
             </p>
@@ -76,8 +77,8 @@ export default function VgkTradeRoiArticlePage() {
               More importantly, the trade had a ripple effect.
             </p>
             <p className="mt-4">
-              Moving Fleury&apos;s contract helped open the path for what came next, including the
-              ability to acquire Jack Eichel just a few months later. Without that cap flexibility,
+              Moving <ArticlePlayerLink playerId={8470594}>Fleury</ArticlePlayerLink>&apos;s contract helped open the path for what came next, including the
+              ability to acquire <ArticlePlayerLink playerId={8478403}>Jack Eichel</ArticlePlayerLink> just a few months later. Without that cap flexibility,
               it is hard to see how Vegas pulls off that deal, and without that deal, it is even
               harder to see a Stanley Cup run materializing in the same way.
             </p>
@@ -92,14 +93,14 @@ export default function VgkTradeRoiArticlePage() {
               Tomas Tatar: Same Player, Completely Different Outcome
             </h2>
             <p className="mt-4">
-              Tomas Tatar is one of the most interesting cases in the entire dataset.
+              <ArticlePlayerLink playerId={8475193}>Tomas Tatar</ArticlePlayerLink> is one of the most interesting cases in the entire dataset.
             </p>
             <p className="mt-4">
               In Vegas, he was underwhelming and quickly moved. At the time, the return felt like a
               necessary correction. But once he got to Montreal, something changed.
             </p>
             <p className="mt-4">
-              Measured over his tenure there, Tatar actually ends up with one of the highest xGAR
+              Measured over his tenure there, <ArticlePlayerLink playerId={8475193}>Tatar</ArticlePlayerLink> actually ends up with one of the highest xGAR
               per million figures in the project at 2.409.
             </p>
             <p className="mt-4">
@@ -121,12 +122,12 @@ export default function VgkTradeRoiArticlePage() {
               Nick Suzuki: The Value That Keeps Growing
             </h2>
             <p className="mt-4">
-              When the Max Pacioretty trade happened, it was widely seen as a win-now move for
+              When the <ArticlePlayerLink playerId={8474157}>Max Pacioretty</ArticlePlayerLink> trade happened, it was widely seen as a win-now move for
               Vegas and a future-focused move for Montreal. That framing still holds, but the scale
               of it has shifted over time.
             </p>
             <p className="mt-4">
-              Nick Suzuki&apos;s development shows up clearly in the cap efficiency results. His
+              <ArticlePlayerLink playerId={8480018}>Nick Suzuki</ArticlePlayerLink>&apos;s development shows up clearly in the cap efficiency results. His
               value relative to cost has steadily increased, with an xGAR per million of 2.203,
               reinforcing how impactful that asset has become over time.
             </p>
@@ -161,7 +162,7 @@ export default function VgkTradeRoiArticlePage() {
             </figure>
 
             <p className="mt-4">
-              At the time, the Jack Eichel trade was widely labeled a win-win.
+              At the time, the <ArticlePlayerLink playerId={8478403}>Jack Eichel</ArticlePlayerLink> trade was widely labeled a win-win.
             </p>
             <p className="mt-4">
               Vegas got a true number one center. Buffalo got multiple high-end assets and future
@@ -174,9 +175,9 @@ export default function VgkTradeRoiArticlePage() {
               But over time, the gap has widened.
             </p>
             <ul className="mt-4 list-disc space-y-2 pl-6">
-              <li>Eichel&apos;s realized value for Vegas continues to grow, with an xGAR per million of 1.188</li>
-              <li>Alex Tuch has been productive, but not at the same level</li>
-              <li>Peyton Krebs has not developed into the impact player many expected, reflected in an xGAR per million of -0.856</li>
+              <li><ArticlePlayerLink playerId={8478403}>Eichel</ArticlePlayerLink>&apos;s realized value for Vegas continues to grow, with an xGAR per million of 1.188</li>
+              <li><ArticlePlayerLink playerId={8477949}>Alex Tuch</ArticlePlayerLink> has been productive, but not at the same level</li>
+              <li><ArticlePlayerLink playerId={8481522}>Peyton Krebs</ArticlePlayerLink> has not developed into the impact player many expected, reflected in an xGAR per million of -0.856</li>
             </ul>
             <p className="mt-4">
               As that plays out, what once looked like a fair exchange starts to lean more clearly

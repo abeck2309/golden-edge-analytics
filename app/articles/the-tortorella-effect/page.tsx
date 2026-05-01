@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArticlePlayerLink } from "@/components/article-player-link";
 import { Container } from "@/components/container";
 import { PageIntro } from "@/components/page-intro";
 
@@ -65,14 +66,16 @@ export default function TortorellaEffectArticlePage() {
             Edmonton Oilers, on the road. This was by far the biggest game of the season for the
             Golden Knights, and they delivered. The Golden Knights never had a lead over the
             Oilers this season until Saturday night. That game was by far one of the most complete
-            60-minute efforts Vegas has had all season long. Jeremy Lauzon ended up scoring his
+            60-minute efforts Vegas has had all season long.{" "}
+            <ArticlePlayerLink playerId={8478468}>Jeremy Lauzon</ArticlePlayerLink> ended up scoring his
             first goal as a Golden Knight, and his first in two years. Vegas was super effective
             off the rush, which is something they have been lacking all season long, and it paid
             off all game.
           </p>
 
           <p>
-            Carter Hart, after missing nearly three months, was excellent against Edmonton. Hart
+            <ArticlePlayerLink playerId={8479394}>Carter Hart</ArticlePlayerLink>, after missing nearly three months, was excellent against Edmonton.{" "}
+            <ArticlePlayerLink playerId={8479394}>Hart</ArticlePlayerLink>
             backstopped his team to a 5-1 win, making 31 saves in the process. Vegas will need
             Hart to be exceptional in the final stretch of games. With just five games left to go
             in the regular season, the Golden Knights winning the Pacific Division does not sound
