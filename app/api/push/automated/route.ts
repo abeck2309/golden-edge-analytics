@@ -13,6 +13,10 @@ const START_ALERT_WINDOW = 10 * 60 * 1000;
 const TWELVE_HOURS = 12 * 60 * 60 * 1000;
 const LIVE_GAME_URL = "/vgk-updates#live-game";
 
+function gameDetailUrl(gameId: number) {
+  return `/vgk-updates?gameId=${gameId}#live-game`;
+}
+
 type AutomatedCandidate = {
   body: string;
   key: string;
@@ -90,7 +94,7 @@ function buildGameStartCandidate(game: VgkScheduleAlertGame, now: number): Autom
       title: "VGK Game Starting Now\u2694\uFE0F",
       topic: "game-start",
       type: "game-start",
-      url: LIVE_GAME_URL
+      url: gameDetailUrl(game.id)
     };
   }
 
@@ -110,7 +114,7 @@ function buildFinalScoreCandidate(game: VgkScheduleAlertGame, now: number): Auto
       title: `${finalLabel(game)}: VGK ${result} ${game.score}`,
       topic: "final-score",
       type: "final-score",
-      url: LIVE_GAME_URL
+      url: gameDetailUrl(game.id)
     };
   }
 
@@ -131,7 +135,7 @@ async function buildGoalCandidates(game: VgkScheduleAlertGame, now: number) {
     title: goal.title,
     topic: "goals",
     type: "goal",
-    url: "/vgk-updates"
+    url: gameDetailUrl(game.id)
   }));
 }
 
@@ -178,7 +182,8 @@ export async function GET(request: Request) {
       sentAt: new Date().toISOString(),
       title: candidate.title,
       total: result.total,
-      type: candidate.type
+      type: candidate.type,
+      url: candidate.url
     });
     sent.push({ ...candidate, ...result });
   }

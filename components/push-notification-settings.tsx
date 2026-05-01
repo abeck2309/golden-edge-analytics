@@ -14,11 +14,50 @@ type PushStatus =
 
 type AlertTopic = "game-start" | "goals" | "final-score" | "vgk-news";
 
-const alertTopics: { description: string; label: string; value: AlertTopic }[] = [
-  { description: "Puck-drop notifications when VGK games start.", label: "Game Starting", value: "game-start" },
-  { description: "Goal notifications during VGK games for either team.", label: "Goals", value: "goals" },
-  { description: "Final score notifications after VGK games end.", label: "Final Score", value: "final-score" },
-  { description: "Golden Edge updates and custom VGK alerts.", label: "VGK News", value: "vgk-news" }
+type AlertHistoryEntry = {
+  body: string;
+  key: string;
+  sentAt: string;
+  title: string;
+  type: string;
+  url: string;
+};
+
+const alertTopics: {
+  description: string;
+  label: string;
+  previewBody: string;
+  previewTitle: string;
+  value: AlertTopic;
+}[] = [
+  {
+    description: "Puck-drop notifications when VGK games start.",
+    label: "Game Starting",
+    previewBody: "VGK (49-22-11) @ UTA (38-31-13)",
+    previewTitle: "VGK Game Starting Now\u2694\uFE0F",
+    value: "game-start"
+  },
+  {
+    description: "Goal notifications during VGK games for either team.",
+    label: "Goals",
+    previewBody: "Mark Stone (2) from Jack Eichel (1), Mitch Marner (2) @ 03:44 remaining in 2nd period",
+    previewTitle: "GOLDEN KNIGHTS GOAL\u{1F6A8}, VGK 1 - UTA 0",
+    value: "goals"
+  },
+  {
+    description: "Final score notifications after VGK games end.",
+    label: "Final Score",
+    previewBody: "Tap to view the game details.",
+    previewTitle: "Final (OT): VGK WIN\u{1F0CF} VGK 5 - UTA 4",
+    value: "final-score"
+  },
+  {
+    description: "Golden Edge updates and custom VGK alerts.",
+    label: "VGK News",
+    previewBody: "Custom update text appears here.",
+    previewTitle: "Breaking VGK News",
+    value: "vgk-news"
+  }
 ];
 
 const defaultTopics = alertTopics.map((topic) => topic.value);
@@ -45,6 +84,13 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
+function formatHistoryDate(date: string) {
+  return new Intl.DateTimeFormat("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short"
+  }).format(new Date(date));
+}
+
 async function getReadyServiceWorker() {
   return Promise.race([
     navigator.serviceWorker.ready,
@@ -59,6 +105,8 @@ export function PushNotificationSettings() {
   const [message, setMessage] = useState("Checking this device...");
   const [busy, setBusy] = useState(false);
   const [selectedTopics, setSelectedTopics] = useState<AlertTopic[]>(defaultTopics);
+  const [history, setHistory] = useState<AlertHistoryEntry[]>([]);
+  const [historyMessage, setHistoryMessage] = useState("Loading alert history...");
 
   useEffect(() => {
     async function checkSupport() {
@@ -120,6 +168,27 @@ export function PushNotificationSettings() {
       setStatus("error");
       setMessage("Could not check notification support. Try refreshing the page.");
     });
+  }, []);
+
+  async function loadHistory() {
+    try {
+      const response = await fetch("/api/push/history", { cache: "no-store" });
+
+      if (!response.ok) {
+        throw new Error("History request failed.");
+      }
+
+      const data = (await response.json()) as { entries: AlertHistoryEntry[] };
+      setHistory(data.entries);
+      setHistoryMessage(data.entries.length ? "Recent alerts sent by Golden Edge." : "No game alerts have been sent yet.");
+    } catch {
+      setHistory([]);
+      setHistoryMessage("Could not load alert history.");
+    }
+  }
+
+  useEffect(() => {
+    loadHistory();
   }, []);
 
   async function enableNotifications() {
@@ -331,6 +400,13 @@ export function PushNotificationSettings() {
                 <span>
                   <span className="block text-sm font-bold text-white">{topic.label}</span>
                   <span className="mt-1 block text-xs leading-5 text-mist">{topic.description}</span>
+                  <span className="mt-3 block rounded-lg border border-white/10 bg-black/25 p-3">
+                    <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-gold-bright">
+                      Preview
+                    </span>
+                    <span className="mt-1 block text-xs font-bold text-white">{topic.previewTitle}</span>
+                    <span className="mt-1 block text-xs leading-5 text-mist">{topic.previewBody}</span>
+                  </span>
                 </span>
                 <span
                   aria-hidden="true"
@@ -351,6 +427,43 @@ export function PushNotificationSettings() {
               </button>
             );
           })}
+        </div>
+      </section>
+
+      <section className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-sm font-bold text-white">Alert History</p>
+            <p className="mt-2 text-sm leading-6 text-mist">{historyMessage}</p>
+          </div>
+          <button
+            type="button"
+            onClick={loadHistory}
+            className="rounded-xl border border-gold/40 px-4 py-2 text-sm font-bold text-gold-bright transition hover:bg-gold/10"
+          >
+            Refresh
+          </button>
+        </div>
+
+        <div className="mt-5 grid gap-3">
+          {history.slice(0, 8).map((entry) => (
+            <a
+              key={`${entry.key}-${entry.sentAt}`}
+              href={entry.url}
+              className="block rounded-xl border border-white/10 bg-black/20 p-4 transition hover:border-gold/35 hover:bg-gold/10"
+            >
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-sm font-bold text-white">{entry.title}</p>
+                  <p className="mt-1 text-sm leading-6 text-mist">{entry.body}</p>
+                </div>
+                <span className="w-fit rounded-full border border-gold/30 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-gold-bright">
+                  {entry.type}
+                </span>
+              </div>
+              <p className="mt-3 text-xs text-mist">{formatHistoryDate(entry.sentAt)}</p>
+            </a>
+          ))}
         </div>
       </section>
     </section>

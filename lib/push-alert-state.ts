@@ -13,6 +13,7 @@ export type AutomatedAlertLogEntry = {
   title: string;
   total: number;
   type: string;
+  url?: string;
 };
 
 const alertStore = globalThis as typeof globalThis & {

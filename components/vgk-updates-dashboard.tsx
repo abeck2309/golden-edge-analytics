@@ -804,6 +804,14 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
     : currentData.overview.featuredGame?.status;
 
   useEffect(() => {
+    const gameId = Number(new URLSearchParams(window.location.search).get("gameId"));
+
+    if (Number.isFinite(gameId) && gameId > 0) {
+      setSelectedGameId(gameId);
+    }
+  }, []);
+
+  useEffect(() => {
     let isCurrent = true;
 
     function refreshDashboardData() {
