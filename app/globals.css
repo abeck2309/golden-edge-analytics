@@ -65,13 +65,54 @@ iframe:focus-visible {
 }
 
 .splash-stage {
+  isolation: isolate;
   background:
     linear-gradient(90deg, #333f42 0 calc(50% - 14px), #333f42 calc(50% - 14px), #000000 calc(50% + 14px), #000000 100%);
+}
+
+.splash-stage::before,
+.splash-stage::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  z-index: 0;
+}
+
+.splash-stage::before {
+  background:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 16px),
+    linear-gradient(115deg, transparent 0 18%, rgba(255, 255, 255, 0.035) 30%, transparent 42% 100%);
+  mix-blend-mode: soft-light;
+  opacity: 0.56;
+}
+
+.splash-stage::after {
+  background:
+    radial-gradient(circle at 42% 36%, rgba(255, 217, 112, 0.72) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 58% 62%, rgba(255, 184, 56, 0.56) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 47% 74%, rgba(255, 235, 161, 0.44) 0 0.8px, transparent 1.6px),
+    radial-gradient(circle at 54% 28%, rgba(255, 199, 77, 0.38) 0 0.8px, transparent 1.5px);
+  background-size:
+    96px 96px,
+    118px 118px,
+    132px 132px,
+    156px 156px;
+  background-position:
+    0 0,
+    34px 18px,
+    14px 42px,
+    62px 6px;
+  mask-image: radial-gradient(circle at center, black 0 36%, rgba(0, 0, 0, 0.62) 48%, transparent 70%);
+  opacity: 0.26;
+  animation: splash-gold-dust 7.4s ease-in-out forwards;
 }
 
 .splash-center-gradient {
   position: absolute;
   inset: 0;
+  z-index: 0;
   background:
     linear-gradient(90deg, transparent calc(50% - 34px), #333f42 calc(50% - 14px), #000000 calc(50% + 14px), transparent calc(50% + 34px));
 }
@@ -79,6 +120,7 @@ iframe:focus-visible {
 .splash-star-pattern {
   position: absolute;
   inset: 0;
+  z-index: 0;
   background-image:
     url("/star-three-points.png"),
     url("/star-three-points.png");
@@ -195,6 +237,21 @@ iframe:focus-visible {
 @keyframes splash-v-trace-draw {
   to {
     stroke-dashoffset: 0;
+  }
+}
+
+@keyframes splash-gold-dust {
+  0% {
+    transform: translate3d(0, 16px, 0);
+    opacity: 0.08;
+  }
+  28%,
+  86% {
+    opacity: 0.26;
+  }
+  100% {
+    transform: translate3d(0, -10px, 0);
+    opacity: 0.12;
   }
 }
 
