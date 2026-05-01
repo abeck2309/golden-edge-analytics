@@ -11,8 +11,47 @@ const logoAliases: Record<string, string> = {
   TBL: "T.B"
 };
 
+const teamPrimaryColors: Record<string, string> = {
+  ANA: "#F47A38",
+  BOS: "#FFB81C",
+  BUF: "#003087",
+  CAR: "#CC0000",
+  CBJ: "#002654",
+  CGY: "#C8102E",
+  CHI: "#CF0A2C",
+  COL: "#6F263D",
+  DAL: "#006847",
+  DET: "#CE1126",
+  EDM: "#041E42",
+  FLA: "#041E42",
+  LAK: "#111111",
+  MIN: "#154734",
+  MTL: "#AF1E2D",
+  NJD: "#CE1126",
+  NSH: "#FFB81C",
+  NYI: "#00539B",
+  NYR: "#0038A8",
+  OTT: "#C52032",
+  PHI: "#F74902",
+  PIT: "#FCB514",
+  SEA: "#001628",
+  SJS: "#006D75",
+  STL: "#002F87",
+  TBL: "#002868",
+  TOR: "#00205B",
+  UTA: "#71AFE5",
+  VAN: "#00205B",
+  VGK: "#B4975A",
+  WPG: "#041E42",
+  WSH: "#041E42"
+};
+
 function logoSrc(abbrev: string) {
   return `/${logoAliases[abbrev] ?? abbrev}.png`;
+}
+
+function teamPrimaryColor(abbrev: string) {
+  return teamPrimaryColors[abbrev] ?? "#B4975A";
 }
 
 function formatDate(value: string, options: Intl.DateTimeFormatOptions = {}) {
@@ -472,22 +511,113 @@ function LeaderBox({
 
 function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBracket"] }) {
   const [isOpen, setIsOpen] = useState(true);
-  const rounds = useMemo(() => {
-    const grouped = new Map<number, typeof bracket.series>();
-
-    bracket.series.forEach((series) => {
-      const round = series.round || 0;
-      grouped.set(round, [...(grouped.get(round) ?? []), series]);
-    });
-
-    return [...grouped.entries()]
-      .sort(([roundA], [roundB]) => roundA - roundB)
-      .map(([round, series]) => ({
-        round,
-        title: series[0]?.roundLabel ?? `Round ${round}`,
-        series
-      }));
+  const seriesByLetter = useMemo(() => {
+    return new Map(bracket.series.map((series) => [series.seriesLetter, series]));
   }, [bracket.series]);
+  const bracketSlots = [
+    { label: "West R1", letters: ["E", "F", "G", "H"], side: "west" },
+    { label: "West R2", letters: ["K", "L"], side: "west" },
+    { label: "West Final", letters: ["N"], side: "west" },
+    { label: "Stanley Cup Final", letters: ["O"], side: "center" },
+    { label: "East Final", letters: ["M"], side: "east" },
+    { label: "East R2", letters: ["I", "J"], side: "east" },
+    { label: "East R1", letters: ["A", "B", "C", "D"], side: "east" }
+  ];
+
+  function TeamRow({
+    seed,
+    seriesLetter,
+    team
+  }: {
+    seed: "top" | "bottom";
+    seriesLetter: string;
+    team: VgkUpdatesData["playoffBracket"]["series"][number]["topSeed"];
+  }) {
+    const isKnownTeam = team.abbrev !== "TBD";
+    const isWinner = team.isWinner && isKnownTeam;
+
+    return (
+      <div
+        key={`${seriesLetter}-${seed}-${team.abbrev}`}
+        className={cn(
+          "mt-2 flex items-center justify-between gap-3 rounded-lg border px-2 py-2 transition",
+          isWinner ? "text-white shadow-[0_0_18px_rgba(180,151,90,0.24)]" : "border-white/10 bg-black/25 text-frost"
+        )}
+        style={
+          isWinner
+            ? {
+                backgroundColor: teamPrimaryColor(team.abbrev),
+                borderColor: teamPrimaryColor(team.abbrev)
+              }
+            : undefined
+        }
+      >
+        <div className="flex min-w-0 items-center gap-2">
+          {isKnownTeam ? (
+            <Image
+              src={logoSrc(team.abbrev)}
+              alt=""
+              width={28}
+              height={28}
+              className="h-7 w-7 shrink-0 object-contain"
+            />
+          ) : (
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/15 text-[10px] font-bold text-mist">
+              TBD
+            </span>
+          )}
+          <div className="min-w-0">
+            <p className="truncate text-sm font-bold">{team.abbrev}</p>
+            <p className={cn("text-[10px] font-semibold uppercase tracking-[0.12em]", isWinner ? "text-white/78" : "text-mist")}>
+              {team.seed || team.name}
+            </p>
+          </div>
+        </div>
+        <p className={cn("text-xl font-bold", isWinner ? "text-white" : "text-gold-bright")}>{team.wins}</p>
+      </div>
+    );
+  }
+
+  function SeriesCard({
+    letter
+  }: {
+    letter: string;
+  }) {
+    const series = seriesByLetter.get(letter);
+
+    if (!series) {
+      return (
+        <article className="rounded-xl border border-dashed border-white/15 bg-white/[0.02] p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">Series {letter}</p>
+          <div className="mt-3 space-y-2">
+            {["top", "bottom"].map((seed) => (
+              <div key={seed} className="rounded-lg border border-white/10 bg-black/20 px-2 py-2 text-sm font-bold text-mist">
+                TBD
+              </div>
+            ))}
+          </div>
+        </article>
+      );
+    }
+
+    return (
+      <article className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+        <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">
+            Series {series.seriesLetter || letter}
+          </p>
+          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold-bright">
+            {series.seriesAbbrev}
+          </p>
+        </div>
+
+        <TeamRow seed="top" seriesLetter={letter} team={series.topSeed} />
+        <TeamRow seed="bottom" seriesLetter={letter} team={series.bottomSeed} />
+
+        <p className="mt-3 text-xs font-semibold text-mist">{series.status}</p>
+      </article>
+    );
+  }
 
   return (
     <section className="mt-6 panel overflow-hidden p-5 md:p-6">
@@ -510,55 +640,30 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
 
       {isOpen ? (
         <div className="mt-5">
-          {rounds.length ? (
+          {bracket.series.length ? (
             <div className="overflow-x-auto pb-1">
-              <div className="grid min-w-[980px] gap-4 lg:grid-cols-4">
-                {rounds.map((round) => (
-                  <div key={round.round} className="rounded-xl border border-white/10 bg-[#0c1015]/70 p-4">
+              <div className="grid min-w-[1320px] grid-cols-7 gap-4">
+                {bracketSlots.map((column) => (
+                  <div
+                    key={column.label}
+                    className={cn(
+                      "flex rounded-xl border border-white/10 bg-[#0c1015]/70 p-4",
+                      column.side === "center" ? "flex-col justify-center" : "flex-col justify-between"
+                    )}
+                  >
                     <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gold-bright">
-                      {round.title}
+                      {column.label}
                     </p>
-                    <div className="mt-4 grid gap-3">
-                      {round.series.map((series) => (
-                        <article key={series.seriesLetter} className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                          <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist">
-                              Series {series.seriesLetter || series.seriesAbbrev}
-                            </p>
-                            <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-gold-bright">
-                              {series.seriesAbbrev}
-                            </p>
-                          </div>
-
-                          {[series.topSeed, series.bottomSeed].map((team) => (
-                            <div
-                              key={`${series.seriesLetter}-${team.abbrev}-${team.seed}`}
-                              className={cn(
-                                "mt-2 flex items-center justify-between gap-3 rounded-lg px-2 py-2",
-                                team.isWinner ? "bg-gold/12 text-white" : "bg-black/20 text-frost"
-                              )}
-                            >
-                              <div className="flex min-w-0 items-center gap-2">
-                                <Image
-                                  src={logoSrc(team.abbrev)}
-                                  alt=""
-                                  width={28}
-                                  height={28}
-                                  className="h-7 w-7 shrink-0 object-contain"
-                                />
-                                <div className="min-w-0">
-                                  <p className="truncate text-sm font-bold">{team.abbrev}</p>
-                                  <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-mist">
-                                    {team.seed || team.name}
-                                  </p>
-                                </div>
-                              </div>
-                              <p className="text-xl font-bold text-gold-bright">{team.wins}</p>
-                            </div>
-                          ))}
-
-                          <p className="mt-3 text-xs font-semibold text-mist">{series.status}</p>
-                        </article>
+                    <div
+                      className={cn(
+                        "mt-4 grid gap-3",
+                        column.letters.length === 4 && "grid-rows-4",
+                        column.letters.length === 2 && "my-auto grid-rows-2 gap-20",
+                        column.letters.length === 1 && "my-auto"
+                      )}
+                    >
+                      {column.letters.map((letter) => (
+                        <SeriesCard key={letter} letter={letter} />
                       ))}
                     </div>
                   </div>

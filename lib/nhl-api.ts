@@ -495,7 +495,6 @@ async function getPlayoffBracketForSeason(season: number) {
   try {
     const bracket = await nhlApiFetch<PlayoffBracketResponse>(nhlEndpoints.playoffBracket(year));
     const series = (bracket.series ?? [])
-      .filter((matchup) => matchup.topSeedTeam || matchup.bottomSeedTeam)
       .map((matchup) => ({
         seriesLetter: matchup.seriesLetter ?? "",
         round: matchup.playoffRound ?? 0,
