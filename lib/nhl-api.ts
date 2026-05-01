@@ -489,6 +489,30 @@ function seriesLeaderText(series: PlayoffBracketSeries) {
   return `${displayBracketTeamName(leader)} leads ${Math.max(topWins, bottomWins)}-${Math.min(topWins, bottomWins)}`;
 }
 
+function playoffDivisionSeed(seriesLetter = "", seed = "") {
+  const divisionBySeries: Record<string, "A" | "M" | "C" | "P"> = {
+    A: "A",
+    B: "A",
+    C: "M",
+    D: "M",
+    E: "C",
+    F: "C",
+    G: "P",
+    H: "P",
+    I: "A",
+    J: "M",
+    K: "C",
+    L: "P"
+  };
+  const division = divisionBySeries[seriesLetter];
+
+  if (!division || !seed.startsWith("D")) {
+    return seed;
+  }
+
+  return `${division}${seed.slice(1)}`;
+}
+
 async function getPlayoffBracketForSeason(season: number) {
   const year = playoffYearFromSeason(season);
 
@@ -506,7 +530,7 @@ async function getPlayoffBracketForSeason(season: number) {
           id: matchup.topSeedTeam?.id,
           logo: matchup.topSeedTeam?.darkLogo ?? matchup.topSeedTeam?.logo,
           name: displayBracketTeamName(matchup.topSeedTeam),
-          seed: matchup.topSeedRankAbbrev ?? "",
+          seed: playoffDivisionSeed(matchup.seriesLetter, matchup.topSeedRankAbbrev),
           wins: matchup.topSeedWins ?? 0,
           isWinner: matchup.winningTeamId === matchup.topSeedTeam?.id
         },
@@ -515,7 +539,7 @@ async function getPlayoffBracketForSeason(season: number) {
           id: matchup.bottomSeedTeam?.id,
           logo: matchup.bottomSeedTeam?.darkLogo ?? matchup.bottomSeedTeam?.logo,
           name: displayBracketTeamName(matchup.bottomSeedTeam),
-          seed: matchup.bottomSeedRankAbbrev ?? "",
+          seed: playoffDivisionSeed(matchup.seriesLetter, matchup.bottomSeedRankAbbrev),
           wins: matchup.bottomSeedWins ?? 0,
           isWinner: matchup.winningTeamId === matchup.bottomSeedTeam?.id
         }
