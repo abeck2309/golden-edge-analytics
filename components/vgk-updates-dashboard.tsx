@@ -629,7 +629,7 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
           />
           <TeamRow seed="bottom" seriesLetter={letter} team={series.bottomSeed} />
 
-          <div className="mt-3 flex items-center justify-between gap-3 text-xs font-semibold">
+          <div className="mt-3 hidden items-center justify-between gap-3 text-xs font-semibold lg:flex">
             <p className="text-mist">{series.status}</p>
             <p className="shrink-0 uppercase tracking-[0.16em] text-gold-bright">{series.seriesAbbrev}</p>
           </div>
@@ -644,7 +644,7 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
           <TeamRow seed="bottom" seriesLetter={letter} team={series.bottomSeed} />
         </div>
 
-        <div className="mt-3 flex items-center justify-between gap-3 text-xs font-semibold">
+        <div className="mt-3 hidden items-center justify-between gap-3 text-xs font-semibold lg:flex">
           <p className="text-mist">{series.status}</p>
           <p className="shrink-0 uppercase tracking-[0.16em] text-gold-bright">{series.seriesAbbrev}</p>
         </div>
