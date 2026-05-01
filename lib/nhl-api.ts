@@ -477,7 +477,7 @@ function goalieSummary(players?: TeamGamePlayers) {
 }
 
 function nextCareerMilestoneTarget(value: number) {
-  const step = value >= 100 ? 25 : 10;
+  const step = value >= 100 ? 100 : 50;
   return Math.ceil((value + 1) / step) * step;
 }
 
