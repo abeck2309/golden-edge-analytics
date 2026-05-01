@@ -671,8 +671,13 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
         </span>
       </button>
 
-      {isOpen ? (
-        <div className="mt-6">
+      <div
+        className={cn(
+          "overflow-hidden transition-[max-height,opacity,transform] duration-700 ease-in-out",
+          isOpen ? "mt-6 max-h-[900px] opacity-100 translate-y-0" : "mt-0 max-h-0 opacity-0 -translate-y-2"
+        )}
+      >
+        <div className="pb-1">
           {bracket.series.length ? (
             <div className="mx-auto w-full max-w-[1680px] px-3 md:px-6">
               <div className="relative min-h-[820px]">
@@ -702,7 +707,7 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
             </p>
           )}
         </div>
-      ) : null}
+      </div>
     </section>
   );
 }
