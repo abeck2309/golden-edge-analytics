@@ -106,7 +106,7 @@ iframe:focus-visible {
     62px 6px;
   mask-image: radial-gradient(circle at center, black 0 36%, rgba(0, 0, 0, 0.62) 48%, transparent 70%);
   opacity: 0.26;
-  animation: splash-gold-dust 7.9s ease-in-out forwards;
+  animation: splash-gold-dust 8.3s ease-in-out forwards;
 }
 
 .splash-center-gradient {
@@ -184,7 +184,7 @@ iframe:focus-visible {
     linear-gradient(115deg, transparent 0 34%, rgba(255, 255, 255, 0.11) 44%, rgba(185, 151, 91, 0.16) 48%, transparent 58% 100%);
   opacity: 0;
   transform: translateX(-42%);
-  animation: splash-background-sheen 7.9s ease-in-out forwards;
+  animation: splash-background-sheen 8.3s ease-in-out forwards;
 }
 
 .splash-outline-shell {
@@ -213,7 +213,7 @@ iframe:focus-visible {
 
 .splash-outline-glow-window {
   clip-path: inset(100% 0 0 0);
-  animation: splash-outline-rise 5.5s cubic-bezier(0.22, 0.75, 0.24, 1) forwards;
+  animation: splash-outline-rise 5.85s cubic-bezier(0.46, 0, 0.2, 1) 0.1s forwards;
   will-change: clip-path;
 }
 
@@ -238,7 +238,7 @@ iframe:focus-visible {
   pointer-events: none;
   opacity: 0;
   overflow: visible;
-  animation: splash-v-trace-show 1.55s ease-in-out 5.55s forwards;
+  animation: splash-v-trace-show 1.55s ease-in-out 6.05s forwards;
 }
 
 .splash-v-trace-path {
@@ -250,7 +250,7 @@ iframe:focus-visible {
   stroke-dasharray: 1;
   stroke-dashoffset: 1;
   filter: url("#splash-red-glow");
-  animation: splash-v-trace-draw 1.45s cubic-bezier(0.48, 0, 0.18, 1) 5.55s forwards;
+  animation: splash-v-trace-draw 1.45s cubic-bezier(0.48, 0, 0.18, 1) 6.05s forwards;
 }
 
 .splash-v-trace-cover {
@@ -317,10 +317,19 @@ iframe:focus-visible {
     clip-path: inset(100% 0 0 0);
     opacity: 0;
   }
-  12% {
+  8% {
+    clip-path: inset(100% 0 0 0);
+    opacity: 0;
+  }
+  16% {
+    clip-path: inset(96% 0 0 0);
     opacity: 1;
   }
-  86% {
+  42% {
+    clip-path: inset(66% 0 0 0);
+    opacity: 1;
+  }
+  88% {
     clip-path: inset(0 0 0 0);
     opacity: 1;
   }
