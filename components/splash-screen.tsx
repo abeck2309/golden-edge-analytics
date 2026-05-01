@@ -77,6 +77,11 @@ export function SplashScreen() {
             </feMerge>
           </filter>
           <path
+            className="splash-v-trace-path splash-v-trace-cover"
+            d="M 224 398 L 148 181 L 219 214 L 240 305 L 266 219 L 340 178 L 262 391"
+            pathLength="1"
+          />
+          <path
             className="splash-v-trace-path splash-v-trace-halo"
             d="M 224 398 L 148 181 L 219 214 L 240 305 L 266 219 L 340 178 L 262 391"
             pathLength="1"

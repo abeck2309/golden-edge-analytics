@@ -162,7 +162,7 @@ iframe:focus-visible {
 .splash-v-trace-path {
   fill: none;
   stroke: #c8102e;
-  stroke-width: 8;
+  stroke-width: 11;
   stroke-linecap: round;
   stroke-linejoin: round;
   stroke-dasharray: 1;
@@ -171,10 +171,15 @@ iframe:focus-visible {
   animation: splash-v-trace-draw 1.45s cubic-bezier(0.48, 0, 0.18, 1) 5.05s forwards;
 }
 
+.splash-v-trace-cover {
+  stroke-width: 17;
+  filter: none;
+}
+
 .splash-v-trace-halo {
-  stroke-width: 18;
-  opacity: 0.42;
-  filter: blur(4px);
+  stroke-width: 24;
+  opacity: 0.58;
+  filter: blur(5px);
 }
 
 @keyframes splash-v-trace-show {
