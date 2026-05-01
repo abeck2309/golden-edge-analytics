@@ -9,11 +9,15 @@
 }
 
 html {
+  max-width: 100%;
+  overflow-x: hidden;
   scroll-behavior: smooth;
 }
 
 body {
   @apply bg-ink text-frost antialiased;
+  max-width: 100%;
+  overflow-x: hidden;
   font-family: var(--font-body);
   background-image:
     radial-gradient(circle at top, rgba(180, 151, 90, 0.14), transparent 24%),
