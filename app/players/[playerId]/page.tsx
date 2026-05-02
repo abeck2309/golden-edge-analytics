@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Container } from "@/components/container";
 import { PlayerCareerTable } from "@/components/player-career-table";
+import { PlayerShotChart } from "@/components/player-shot-chart";
+import { getMoneyPuckPlayerShotChart } from "@/lib/moneypuck-api";
 import { getVgkPlayerCard } from "@/lib/nhl-api";
 
 function StatBox({ label, value }: { label: string; value: string | number }) {
@@ -46,7 +48,11 @@ function SeasonStatGrid({
 
 export default async function PlayerPage({ params }: { params: Promise<{ playerId: string }> }) {
   const { playerId } = await params;
-  const player = await getVgkPlayerCard(Number(playerId));
+  const parsedPlayerId = Number(playerId);
+  const [player, shotChart] = await Promise.all([
+    getVgkPlayerCard(parsedPlayerId),
+    getMoneyPuckPlayerShotChart(parsedPlayerId).catch(() => null)
+  ]);
 
   return (
     <Container className="pb-20 pt-12 md:pt-16">
@@ -92,6 +98,8 @@ export default async function PlayerPage({ params }: { params: Promise<{ playerI
           <StatBox label="Birthplace" value={player.birthPlace || "N/A"} />
         </div>
       </section>
+
+      {!player.isGoalie && shotChart && shotChart.shots.length ? <PlayerShotChart chart={shotChart} /> : null}
 
       <PlayerCareerTable isGoalie={player.isGoalie} seasons={player.careerBySeason} />
 
