@@ -396,6 +396,55 @@ function GoalLocationRink({ goal }: { goal: GoalEvent }) {
   );
 }
 
+function isDirectVideoUrl(url: string) {
+  return /\.(mp4|mov|m4v|webm)(\?|#|$)/i.test(url) || /\.m3u8(\?|#|$)/i.test(url);
+}
+
+function GoalHighlightEmbed({ goal }: { goal: GoalEvent }) {
+  const [videoFailed, setVideoFailed] = useState(false);
+
+  if (!goal.highlightUrl) {
+    return null;
+  }
+
+  const directVideo = isDirectVideoUrl(goal.highlightUrl);
+
+  return (
+    <div className="mt-4 overflow-hidden rounded-xl border border-white/10 bg-black/30">
+      <div className="flex items-center justify-between gap-3 border-b border-white/10 px-4 py-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-mist">Highlight Clip</p>
+        <a
+          href={goal.highlightUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="text-xs font-semibold text-gold-bright underline decoration-gold/40 underline-offset-4 hover:text-white"
+        >
+          Open
+        </a>
+      </div>
+      {directVideo && !videoFailed ? (
+        <video
+          src={goal.highlightUrl}
+          controls
+          playsInline
+          preload="metadata"
+          onError={() => setVideoFailed(true)}
+          className="aspect-video w-full bg-black"
+        />
+      ) : (
+        <iframe
+          src={goal.highlightUrl}
+          title={`${goal.scorer} goal highlight`}
+          allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+          allowFullScreen
+          loading="lazy"
+          className="aspect-video w-full border-0 bg-black"
+        />
+      )}
+    </div>
+  );
+}
+
 function GoalDetailDrawer({
   goal,
   onClose,
@@ -460,6 +509,8 @@ function GoalDetailDrawer({
           <GoalLocationRink goal={goal} />
         </div>
 
+        <GoalHighlightEmbed goal={goal} />
+
         <div className="mt-4 rounded-xl border border-white/10 bg-white/[0.025] p-4 text-sm leading-6 text-mist">
           {goal.assists.length ? (
             <>
@@ -478,17 +529,6 @@ function GoalDetailDrawer({
             "Unassisted goal."
           )}
         </div>
-
-        {goal.highlightUrl ? (
-          <a
-            href={goal.highlightUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="mt-6 inline-flex w-fit rounded-full bg-gold px-5 py-3 text-sm font-semibold text-ink hover:bg-gold-bright"
-          >
-            Watch Highlight
-          </a>
-        ) : null}
       </aside>
     </div>
   );
@@ -963,16 +1003,15 @@ function GameDetailPanel({
                             <span className="-mt-px text-[13px] font-black leading-none">+</span>
                           </button>
                           {goal.highlightUrl ? (
-                            <a
-                              href={goal.highlightUrl}
-                              target="_blank"
-                              rel="noreferrer"
+                            <button
+                              type="button"
+                              onClick={() => onOpenGoalPopup(goal)}
                               aria-label={`Watch highlight for ${goal.scorer}`}
                               title="Watch highlight"
                               className="flex h-5 w-5 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-white transition hover:border-gold/50 hover:bg-gold/15"
                             >
                               <span className="ml-[1px] text-[9px] font-black leading-none">&#9654;</span>
-                            </a>
+                            </button>
                           ) : (
                             <button
                               type="button"
