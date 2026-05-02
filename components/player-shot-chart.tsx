@@ -84,19 +84,15 @@ export function PlayerShotChart({ chart }: { chart: MoneyPuckPlayerShotChart }) 
           @keyframes player-goal-pulse {
             0%,
             100% {
-              opacity: 0.45;
-              transform: scale(0.78);
+              fill: #8f7437;
             }
             50% {
-              opacity: 1;
-              transform: scale(1.45);
+              fill: #ffd96f;
             }
           }
 
           .player-goal-pulse {
             animation: player-goal-pulse 1.65s ease-in-out infinite;
-            transform-box: fill-box;
-            transform-origin: center;
           }
         `}</style>
         <svg
@@ -151,25 +147,16 @@ export function PlayerShotChart({ chart }: { chart: MoneyPuckPlayerShotChart }) 
 
               return (
                 <g key={`${shot.gameId}-${shot.period}-${shot.time}-${index}`}>
-                  {shot.goal ? (
-                    <circle
-                      cx={x}
-                      cy={y}
-                      r={radius + 2.8}
-                      fill="#d8bc7a"
-                      opacity="0.48"
-                      className="player-goal-pulse"
-                    />
-                  ) : null}
                   <circle
                     cx={x}
                     cy={y}
                     r={radius}
                     fill={shot.goal ? "#d8bc7a" : "#111827"}
                     stroke={shot.goal ? "#111827" : "#d8bc7a"}
-                    strokeWidth="0.55"
+                    strokeWidth={shot.goal ? "0.9" : "0.55"}
                     opacity={shot.goal ? 0.95 : 0.62}
                     filter={shot.goal ? `url(#player-shot-goal-glow-${chart.playerId})` : undefined}
+                    className={shot.goal ? "player-goal-pulse" : undefined}
                   >
                     <title>
                       {shot.goal ? "Goal" : "Shot"} | {shot.shotType} | xG {shot.xGoal.toFixed(3)} | Period {shot.period}{" "}
