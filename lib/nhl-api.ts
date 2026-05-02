@@ -469,12 +469,13 @@ function playoffYearFromSeason(season: number) {
 function seriesLeaderText(series: PlayoffBracketSeries) {
   const topWins = series.topSeedWins ?? 0;
   const bottomWins = series.bottomSeedWins ?? 0;
+  const winningTeamId = playoffSeriesWinnerId(series);
 
-  if (series.winningTeamId) {
+  if (winningTeamId) {
     const winner =
-      series.winningTeamId === series.topSeedTeam?.id
+      winningTeamId === series.topSeedTeam?.id
         ? series.topSeedTeam
-        : series.winningTeamId === series.bottomSeedTeam?.id
+        : winningTeamId === series.bottomSeedTeam?.id
           ? series.bottomSeedTeam
           : undefined;
 
@@ -487,6 +488,25 @@ function seriesLeaderText(series: PlayoffBracketSeries) {
 
   const leader = topWins > bottomWins ? series.topSeedTeam : series.bottomSeedTeam;
   return `${displayBracketTeamName(leader)} leads ${Math.max(topWins, bottomWins)}-${Math.min(topWins, bottomWins)}`;
+}
+
+function playoffSeriesWinnerId(series: PlayoffBracketSeries) {
+  if (series.winningTeamId) {
+    return series.winningTeamId;
+  }
+
+  const topWins = series.topSeedWins ?? 0;
+  const bottomWins = series.bottomSeedWins ?? 0;
+
+  if (topWins >= 4 && topWins > bottomWins) {
+    return series.topSeedTeam?.id;
+  }
+
+  if (bottomWins >= 4 && bottomWins > topWins) {
+    return series.bottomSeedTeam?.id;
+  }
+
+  return undefined;
 }
 
 function playoffDivisionSeed(seriesLetter = "", seed = "") {
@@ -519,31 +539,35 @@ async function getPlayoffBracketForSeason(season: number) {
   try {
     const bracket = await nhlApiFetch<PlayoffBracketResponse>(nhlEndpoints.playoffBracket(year));
     const series = (bracket.series ?? [])
-      .map((matchup) => ({
-        seriesLetter: matchup.seriesLetter ?? "",
-        round: matchup.playoffRound ?? 0,
-        roundLabel: matchup.seriesTitle ?? matchup.seriesAbbrev ?? "Playoffs",
-        seriesAbbrev: matchup.seriesAbbrev ?? "",
-        status: seriesLeaderText(matchup),
-        topSeed: {
-          abbrev: matchup.topSeedTeam?.abbrev ?? "TBD",
-          id: matchup.topSeedTeam?.id,
-          logo: matchup.topSeedTeam?.darkLogo ?? matchup.topSeedTeam?.logo,
-          name: displayBracketTeamName(matchup.topSeedTeam),
-          seed: playoffDivisionSeed(matchup.seriesLetter, matchup.topSeedRankAbbrev),
-          wins: matchup.topSeedWins ?? 0,
-          isWinner: matchup.winningTeamId === matchup.topSeedTeam?.id
-        },
-        bottomSeed: {
-          abbrev: matchup.bottomSeedTeam?.abbrev ?? "TBD",
-          id: matchup.bottomSeedTeam?.id,
-          logo: matchup.bottomSeedTeam?.darkLogo ?? matchup.bottomSeedTeam?.logo,
-          name: displayBracketTeamName(matchup.bottomSeedTeam),
-          seed: playoffDivisionSeed(matchup.seriesLetter, matchup.bottomSeedRankAbbrev),
-          wins: matchup.bottomSeedWins ?? 0,
-          isWinner: matchup.winningTeamId === matchup.bottomSeedTeam?.id
-        }
-      }));
+      .map((matchup) => {
+        const winnerId = playoffSeriesWinnerId(matchup);
+
+        return {
+          seriesLetter: matchup.seriesLetter ?? "",
+          round: matchup.playoffRound ?? 0,
+          roundLabel: matchup.seriesTitle ?? matchup.seriesAbbrev ?? "Playoffs",
+          seriesAbbrev: matchup.seriesAbbrev ?? "",
+          status: seriesLeaderText(matchup),
+          topSeed: {
+            abbrev: matchup.topSeedTeam?.abbrev ?? "TBD",
+            id: matchup.topSeedTeam?.id,
+            logo: matchup.topSeedTeam?.darkLogo ?? matchup.topSeedTeam?.logo,
+            name: displayBracketTeamName(matchup.topSeedTeam),
+            seed: playoffDivisionSeed(matchup.seriesLetter, matchup.topSeedRankAbbrev),
+            wins: matchup.topSeedWins ?? 0,
+            isWinner: winnerId === matchup.topSeedTeam?.id
+          },
+          bottomSeed: {
+            abbrev: matchup.bottomSeedTeam?.abbrev ?? "TBD",
+            id: matchup.bottomSeedTeam?.id,
+            logo: matchup.bottomSeedTeam?.darkLogo ?? matchup.bottomSeedTeam?.logo,
+            name: displayBracketTeamName(matchup.bottomSeedTeam),
+            seed: playoffDivisionSeed(matchup.seriesLetter, matchup.bottomSeedRankAbbrev),
+            wins: matchup.bottomSeedWins ?? 0,
+            isWinner: winnerId === matchup.bottomSeedTeam?.id
+          }
+        };
+      });
 
     return {
       logo: bracket.bracketLogo,
