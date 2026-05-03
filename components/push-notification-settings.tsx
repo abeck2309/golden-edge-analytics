@@ -61,6 +61,7 @@ const alertTopics: {
 ];
 
 const defaultTopics = alertTopics.map((topic) => topic.value);
+const SPLASH_SOUND_STORAGE_KEY = "golden-edge-splash-sound-enabled";
 
 function isStandalonePwa() {
   const navigatorWithStandalone = window.navigator as Navigator & { standalone?: boolean };
@@ -105,8 +106,14 @@ export function PushNotificationSettings() {
   const [message, setMessage] = useState("Checking this device...");
   const [busy, setBusy] = useState(false);
   const [selectedTopics, setSelectedTopics] = useState<AlertTopic[]>(defaultTopics);
+  const [splashSoundEnabled, setSplashSoundEnabled] = useState(false);
+  const [splashSoundMessage, setSplashSoundMessage] = useState("Off by default. Browser autoplay rules may still apply.");
   const [history, setHistory] = useState<AlertHistoryEntry[]>([]);
   const [historyMessage, setHistoryMessage] = useState("Loading alert history...");
+
+  useEffect(() => {
+    setSplashSoundEnabled(localStorage.getItem(SPLASH_SOUND_STORAGE_KEY) === "true");
+  }, []);
 
   useEffect(() => {
     async function checkSupport() {
@@ -327,6 +334,30 @@ export function PushNotificationSettings() {
     }
   }
 
+  async function toggleSplashSound() {
+    const nextEnabled = !splashSoundEnabled;
+    setSplashSoundEnabled(nextEnabled);
+    localStorage.setItem(SPLASH_SOUND_STORAGE_KEY, String(nextEnabled));
+
+    if (!nextEnabled) {
+      setSplashSoundMessage("Splash sound is off.");
+      return;
+    }
+
+    try {
+      const audio = new Audio("/splash-red-trace.wav");
+      audio.volume = 0.18;
+      await audio.play();
+      window.setTimeout(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }, 350);
+      setSplashSoundMessage("Splash sound is on. Future launches will try to play it at the red trace.");
+    } catch {
+      setSplashSoundMessage("Splash sound is on, but this browser may still require a tap each launch.");
+    }
+  }
+
   const canEnable = status === "ready" || status === "error";
   const canTest = status === "subscribed";
   const canDisable = status === "subscribed";
@@ -428,6 +459,35 @@ export function PushNotificationSettings() {
             );
           })}
         </div>
+      </section>
+
+      <section className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
+        <button
+          type="button"
+          onClick={toggleSplashSound}
+          className="flex w-full items-center justify-between gap-4 text-left"
+        >
+          <span>
+            <span className="block text-sm font-bold text-white">Splash Sound</span>
+            <span className="mt-2 block text-sm leading-6 text-mist">{splashSoundMessage}</span>
+          </span>
+          <span
+            aria-hidden="true"
+            className={
+              splashSoundEnabled
+                ? "flex h-8 w-14 shrink-0 items-center rounded-full bg-gold p-1 transition"
+                : "flex h-8 w-14 shrink-0 items-center rounded-full bg-white/15 p-1 transition"
+            }
+          >
+            <span
+              className={
+                splashSoundEnabled
+                  ? "h-6 w-6 translate-x-6 rounded-full bg-ink transition"
+                  : "h-6 w-6 translate-x-0 rounded-full bg-white transition"
+              }
+            />
+          </span>
+        </button>
       </section>
 
       <section className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
