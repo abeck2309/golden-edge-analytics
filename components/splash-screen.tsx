@@ -2,9 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-const RED_TRACE_START_MS = 6050;
-const SPLASH_SOUND_STORAGE_KEY = "golden-edge-splash-sound-enabled";
-
 export function SplashScreen() {
   const [showSplash, setShowSplash] = useState(true);
   const [isExiting, setIsExiting] = useState(false);
@@ -24,28 +21,10 @@ export function SplashScreen() {
 
     sessionStorage.setItem("golden-edge-splash-played", "true");
 
-    const splashSoundEnabled = localStorage.getItem(SPLASH_SOUND_STORAGE_KEY) === "true";
-    const redTraceAudio = splashSoundEnabled ? new Audio("/splash-red-trace.wav") : null;
-
-    if (redTraceAudio) {
-      redTraceAudio.preload = "auto";
-      redTraceAudio.volume = 0.72;
-    }
-
-    const audioTimer = redTraceAudio
-      ? window.setTimeout(() => {
-          redTraceAudio.currentTime = 0;
-          redTraceAudio.play().catch(() => {
-            // Mobile browsers may still block splash audio until the user interacts during this launch.
-          });
-        }, RED_TRACE_START_MS)
-      : null;
     const exitTimer = window.setTimeout(() => setIsExiting(true), 7600);
     const doneTimer = window.setTimeout(() => setShowSplash(false), 8300);
 
     return () => {
-      redTraceAudio?.pause();
-      if (audioTimer) window.clearTimeout(audioTimer);
       window.clearTimeout(exitTimer);
       window.clearTimeout(doneTimer);
     };
