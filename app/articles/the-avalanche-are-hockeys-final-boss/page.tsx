@@ -42,6 +42,9 @@ export default function AvalancheFinalBossArticlePage() {
                 className="object-cover"
               />
             </div>
+            <figcaption className="border-t border-line px-4 py-3 text-xs uppercase tracking-[0.14em] text-mist">
+              NHL / Vegas Golden Knights
+            </figcaption>
           </figure>
 
           <p>
