@@ -104,6 +104,15 @@ export const siteConfig = {
   ] satisfies ProjectConfig[],
   articles: [
     {
+      title: "The Avalanche Are Hockey's Final Boss. Here's How Vegas Can Survive Them.",
+      slug: "the-avalanche-are-hockeys-final-boss",
+      eyebrow: "Article",
+      description:
+        "A look at the ugly, low-event formula Vegas would need to make a Colorado series competitive, from special teams and turnovers to net-front play and game flow.",
+      href: "/articles/the-avalanche-are-hockeys-final-boss",
+      readTime: "5/14/26"
+    },
+    {
       title: "Vegas Goes to Utah with the Series Knotted 1-1",
       slug: "vegas-goes-to-utah-with-the-series-knotted-1-1",
       eyebrow: "Article",
