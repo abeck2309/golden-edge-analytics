@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { ArticleImage } from "@/components/article-image";
 import { ArticlePlayerLink } from "@/components/article-player-link";
 import { Container } from "@/components/container";
 import { PageIntro } from "@/components/page-intro";
@@ -50,19 +50,13 @@ export default function GoldenKnightsVancouverArticlePage() {
             after two periods of play.
           </p>
 
-          <figure className="md:float-left md:mb-4 md:mr-6 md:mt-2 overflow-hidden rounded-[1.4rem] border border-line bg-white/[0.02] md:w-[320px]">
-            <div className="relative aspect-[4/3] w-full">
-              <Image
-                src="/vgk-van-4-7-26.jpg"
-                alt="Golden Knights and Canucks action from April 7, 2026"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <figcaption className="border-t border-line px-4 py-3 text-xs uppercase tracking-[0.14em] text-mist">
-              The Canadian Press / Darryl Dyck
-            </figcaption>
-          </figure>
+          <ArticleImage
+            src="/vgk-van-4-7-26.jpg"
+            alt="Golden Knights and Canucks action from April 7, 2026"
+            credit="The Canadian Press / Darryl Dyck"
+            figureClassName="md:float-left md:mb-4 md:mr-6 md:mt-2 overflow-hidden rounded-[1.4rem] border border-line bg-white/[0.02] md:w-[320px]"
+            aspectClassName="aspect-[4/3]"
+          />
 
           <p>
             Recently the depth of the Golden Knights has been shown, and with 7:47 left in

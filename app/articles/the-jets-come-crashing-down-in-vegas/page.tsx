@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { ArticleImage } from "@/components/article-image";
 import { ArticlePlayerLink } from "@/components/article-player-link";
 import { Container } from "@/components/container";
 import { PageIntro } from "@/components/page-intro";
@@ -37,19 +37,13 @@ export default function JetsComeCrashingDownInVegasArticlePage() {
             also recorded his first power-play goal of the season in game 81 of 82.
           </p>
 
-          <figure className="md:float-right md:mb-4 md:ml-6 md:mt-2 overflow-hidden rounded-[1.4rem] border border-line bg-white/[0.02] md:w-[320px]">
-            <div className="relative aspect-[4/3] w-full">
-              <Image
-                src="/vgk-wpg-4-13-26.jpeg"
-                alt="Golden Knights and Jets action from April 13, 2026"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <figcaption className="border-t border-line px-4 py-3 text-xs uppercase tracking-[0.14em] text-mist">
-              NHL / Vegas Golden Knights
-            </figcaption>
-          </figure>
+          <ArticleImage
+            src="/vgk-wpg-4-13-26.jpeg"
+            alt="Golden Knights and Jets action from April 13, 2026"
+            credit="NHL / Vegas Golden Knights"
+            figureClassName="md:float-right md:mb-4 md:ml-6 md:mt-2 overflow-hidden rounded-[1.4rem] border border-line bg-white/[0.02] md:w-[320px]"
+            aspectClassName="aspect-[4/3]"
+          />
 
           <p>
             The second period was eventful to say the least, with the Jets and Golden Knights

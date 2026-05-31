@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { ArticleImage } from "@/components/article-image";
 import { ArticlePlayerLink } from "@/components/article-player-link";
 import { Container } from "@/components/container";
 import { PageIntro } from "@/components/page-intro";
@@ -38,19 +38,13 @@ export default function VegasUtahSeriesArticlePage() {
             slowing them down, but that was not the case in game two.
           </p>
 
-          <figure className="md:float-left md:mb-4 md:mr-6 md:mt-2 w-full max-w-[320px] overflow-hidden rounded-[1.4rem] border border-line bg-white/[0.02]">
-            <div className="relative aspect-[4/3] w-full">
-              <Image
-                src="/hart-save.webp"
-                alt="Carter Hart making a save for the Golden Knights"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <figcaption className="border-t border-line px-4 py-3 text-xs uppercase tracking-[0.14em] text-mist">
-              AP Photo / John Locher
-            </figcaption>
-          </figure>
+          <ArticleImage
+            src="/hart-save.webp"
+            alt="Carter Hart making a save for the Golden Knights"
+            credit="AP Photo / John Locher"
+            figureClassName="md:float-left md:mb-4 md:mr-6 md:mt-2 w-full max-w-[320px] overflow-hidden rounded-[1.4rem] border border-line bg-white/[0.02]"
+            aspectClassName="aspect-[4/3]"
+          />
 
           <p>
             In game two Utah killed Vegas with their speed and yet again Utah's first line of

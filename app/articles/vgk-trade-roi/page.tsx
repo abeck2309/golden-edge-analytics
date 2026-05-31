@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { ArticleImage } from "@/components/article-image";
 import { ArticlePlayerLink } from "@/components/article-player-link";
 import { Container } from "@/components/container";
 import { PageIntro } from "@/components/page-intro";
@@ -147,19 +147,13 @@ export default function VgkTradeRoiArticlePage() {
               The Eichel Trade: From "Win-Win" to Something Else
             </h2>
 
-            <figure className="md:float-right md:mb-4 md:ml-6 md:mt-2 overflow-hidden rounded-[1.4rem] border border-line bg-white/[0.02] md:w-[320px]">
-              <div className="relative aspect-[4/3] w-full">
-                <Image
-                  src="/eichel-vgk.png"
-                  alt="Jack Eichel with Vegas Golden Knights branding"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <figcaption className="border-t border-line px-4 py-3 text-xs uppercase tracking-[0.14em] text-mist">
-                NHL
-              </figcaption>
-            </figure>
+            <ArticleImage
+              src="/eichel-vgk.png"
+              alt="Jack Eichel with Vegas Golden Knights branding"
+              credit="NHL"
+              figureClassName="md:float-right md:mb-4 md:ml-6 md:mt-2 overflow-hidden rounded-[1.4rem] border border-line bg-white/[0.02] md:w-[320px]"
+              aspectClassName="aspect-[4/3]"
+            />
 
             <p className="mt-4">
               At the time, the <ArticlePlayerLink playerId={8478403}>Jack Eichel</ArticlePlayerLink> trade was widely labeled a win-win.

@@ -104,6 +104,15 @@ export const siteConfig = {
   ] satisfies ProjectConfig[],
   articles: [
     {
+      title: "A Storm is Brewing in Las Vegas. Can the Golden Knights Withstand a Category 5?",
+      slug: "a-storm-is-brewing-in-las-vegas",
+      eyebrow: "Article",
+      description:
+        "A look at how Vegas matches up with Carolina's territorial dominance, why the Hurricanes are so hard to dislodge, and where the Golden Knights still have a path.",
+      href: "/articles/a-storm-is-brewing-in-las-vegas",
+      readTime: "5/31/26"
+    },
+    {
       title: "The Avalanche Are Hockey's Final Boss. Here's How Vegas Can Survive Them.",
       slug: "the-avalanche-are-hockeys-final-boss",
       eyebrow: "Article",
