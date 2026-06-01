@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Container } from "@/components/container";
 import { cn } from "@/lib/cn";
+import { stanleyCupFinalMode } from "@/lib/finals-mode";
 import { siteConfig } from "@/lib/site-config";
 
 export function SiteHeader() {
@@ -25,14 +26,21 @@ export function SiteHeader() {
   }
 
   function NavLabel({ href, label }: { href: string; label: string }) {
+    const isVgkUpdates = href === "/vgk-updates";
+
     return (
       <span className="inline-flex items-center gap-2">
         {label}
-        {href === "/vgk-updates" ? (
+        {isVgkUpdates ? (
           <span
             aria-label="Live updates"
             className="h-2 w-2 animate-pulse rounded-full bg-red-400 shadow-[0_0_12px_rgba(248,113,113,0.95)]"
           />
+        ) : null}
+        {isVgkUpdates && stanleyCupFinalMode.enabled ? (
+          <span className="rounded-full border border-gold/35 bg-gold/10 px-1.5 py-0.5 text-[0.62rem] font-black uppercase leading-none tracking-[0.12em] text-gold-bright shadow-[0_0_14px_rgba(185,151,91,0.22)]">
+            {stanleyCupFinalMode.shortLabel}
+          </span>
         ) : null}
       </span>
     );

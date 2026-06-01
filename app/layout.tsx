@@ -5,6 +5,7 @@ import { PwaServiceWorker } from "@/components/pwa-service-worker";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { SplashScreen } from "@/components/splash-screen";
+import { StanleyCupFinalBanner } from "@/components/stanley-cup-final-banner";
 import { siteConfig } from "@/lib/site-config";
 
 export const metadata: Metadata = {
@@ -49,6 +50,7 @@ export default function RootLayout({
         </a>
         <div className="min-h-screen bg-hero-glow">
           <SiteHeader />
+          <StanleyCupFinalBanner />
           <main id="main-content">{children}</main>
           <SiteFooter />
         </div>

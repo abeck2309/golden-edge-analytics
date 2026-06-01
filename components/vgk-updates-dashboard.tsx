@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { VgkGameDetail, VgkPlayerCardData, VgkUpdatesData } from "@/lib/nhl-api";
 import { cn } from "@/lib/cn";
+import { stanleyCupFinalMode } from "@/lib/finals-mode";
 
 const logoAliases: Record<string, string> = {
   NJD: "N.J",
@@ -67,14 +68,18 @@ function formatDate(value: string, options: Intl.DateTimeFormatOptions = {}) {
 function StatTile({
   compact = false,
   label,
-  value
+  value,
+  detail,
+  valueClassName
 }: {
   compact?: boolean;
   label: string;
   value: string | number;
+  detail?: string | null;
+  valueClassName?: string;
 }) {
   return (
-    <div className={cn("rounded-xl border border-white/10 bg-white/[0.035] p-4", compact && "p-2 sm:p-2.5 md:p-4")}>
+    <div className={cn("rounded-xl border border-white/10 bg-white/[0.035] p-4", compact && "min-h-[5.9rem] p-2 sm:min-h-[6.2rem] sm:p-2.5 md:p-4")}>
       <p
         className={cn(
           "text-xs font-semibold uppercase tracking-[0.2em] text-mist",
@@ -83,9 +88,14 @@ function StatTile({
       >
         {label}
       </p>
-      <p className={cn("mt-2 text-2xl font-bold text-white", compact && "mt-1 text-base leading-tight sm:text-lg md:mt-2 md:text-2xl")}>
+      <p className={cn("mt-2 text-2xl font-bold text-white", compact && "mt-1 text-base leading-tight sm:text-lg md:mt-2 md:text-2xl", valueClassName)}>
         {value}
       </p>
+      {detail ? (
+        <p className={cn("mt-1 text-xs font-semibold text-mist", compact && "text-[0.58rem] leading-tight sm:text-xs")}>
+          {detail}
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -99,6 +109,22 @@ function detailScoreLine(detail: VgkGameDetail | null) {
   const opponent = detail.awayTeam.abbrev === "VGK" ? detail.homeTeam : detail.awayTeam;
 
   return `VGK ${vgkTeam.score}, ${opponent.abbrev} ${opponent.score}`;
+}
+
+function dashboardRefreshMs(featuredGame: VgkUpdatesData["overview"]["featuredGame"]) {
+  if (featuredGame?.isLive) return 30_000;
+  if (featuredGame?.isToday) return 3 * 60_000;
+
+  return 15 * 60_000;
+}
+
+function gameDetailRefreshMs(featuredGame: VgkUpdatesData["overview"]["featuredGame"], selectedGameId: number | null) {
+  const isFeaturedGame = Boolean(featuredGame?.id && featuredGame.id === selectedGameId);
+
+  if (featuredGame?.isLive && isFeaturedGame) return 25_000;
+  if (featuredGame?.isToday && isFeaturedGame) return 2 * 60_000;
+
+  return 10 * 60_000;
 }
 
 type GoalEvent = VgkGameDetail["scoringByPeriod"][number]["goals"][number];
@@ -635,14 +661,17 @@ function PlayoffBracketPanel({ bracket }: { bracket: VgkUpdatesData["playoffBrac
 
     if (letter === "O") {
       return (
-        <div className="w-full">
+        <div className="w-full drop-shadow-[0_0_32px_rgba(185,151,91,0.3)]">
+          <p className="mb-2 hidden text-center text-[10px] font-bold uppercase tracking-[0.2em] text-gold-bright md:block">
+            Cup Final
+          </p>
           <TeamRow seed="top" seriesLetter={letter} team={series.topSeed} />
           <Image
             src="/stanley-cup-final-2026.svg"
             alt="2026 Stanley Cup Final"
             width={160}
             height={130}
-            className="mx-auto my-3 h-24 w-auto object-contain md:my-5 md:h-36"
+            className="mx-auto my-2 h-24 w-auto object-contain drop-shadow-[0_0_18px_rgba(255,255,255,0.18)] md:my-5 md:h-40"
           />
           <TeamRow seed="bottom" seriesLetter={letter} team={series.bottomSeed} />
 
@@ -1072,6 +1101,7 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
 
   useEffect(() => {
     let isCurrent = true;
+    let refreshTimer: number | null = null;
 
     function refreshDashboardData() {
       fetch("/api/vgk-updates", { cache: "no-store" })
@@ -1089,14 +1119,16 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
         });
     }
 
-    refreshDashboardData();
-    const refreshTimer = window.setInterval(refreshDashboardData, 30000);
+    const intervalMs = dashboardRefreshMs(currentData.overview.featuredGame);
+    refreshTimer = window.setInterval(refreshDashboardData, intervalMs);
 
     return () => {
       isCurrent = false;
-      window.clearInterval(refreshTimer);
+      if (refreshTimer) {
+        window.clearInterval(refreshTimer);
+      }
     };
-  }, []);
+  }, [currentData.overview.featuredGame?.id, currentData.overview.featuredGame?.isLive, currentData.overview.featuredGame?.isToday]);
 
   useEffect(() => {
     const featuredId = currentData.overview.featuredGame?.id ?? null;
@@ -1159,7 +1191,6 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
         })
         .catch((error: Error) => {
           if (isCurrent) {
-            setDetail(null);
             setDetailError(error.message);
           }
         })
@@ -1169,7 +1200,10 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
     }
 
     loadGameDetail(true);
-    refreshTimer = window.setInterval(() => loadGameDetail(false), 30000);
+    refreshTimer = window.setInterval(
+      () => loadGameDetail(false),
+      gameDetailRefreshMs(currentData.overview.featuredGame, selectedGameId)
+    );
 
     return () => {
       isCurrent = false;
@@ -1181,7 +1215,13 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
         goalPopupTimer.current = null;
       }
     };
-  }, [selectedGameId, showGoalPopup]);
+  }, [
+    currentData.overview.featuredGame?.id,
+    currentData.overview.featuredGame?.isLive,
+    currentData.overview.featuredGame?.isToday,
+    selectedGameId,
+    showGoalPopup
+  ]);
 
   useEffect(() => {
     if (!selectedPlayerId) return;
@@ -1224,24 +1264,37 @@ export function VgkUpdatesDashboard({ data }: { data: VgkUpdatesData }) {
   return (
     <>
       <section className="panel overflow-hidden p-4 sm:p-5 md:p-8">
-        <div className="grid gap-3 md:gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-          <div>
-            <p className="eyebrow">VGK Updates</p>
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-5 text-center md:gap-6">
+          <div className="w-full">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <p className="eyebrow">VGK Updates</p>
+              {stanleyCupFinalMode.enabled ? (
+                <span className="rounded-full border border-gold/35 bg-gold/10 px-2 py-1 text-[0.62rem] font-black uppercase leading-none tracking-[0.16em] text-gold-bright">
+                  {stanleyCupFinalMode.roundLabel}
+                </span>
+              ) : null}
+            </div>
             <h1 className="mt-3 hidden font-[family-name:var(--font-heading)] text-6xl font-bold tracking-tight text-white md:block">
-              Golden Knights Live Dashboard
+              Stanley Cup Final Live Dashboard
             </h1>
-            <p className="mt-2 max-w-4xl text-[0.65rem] leading-4 text-mist sm:text-xs md:mt-4 md:whitespace-nowrap md:text-sm md:leading-7 lg:text-base">
-              1x Stanley Cup Champion, 2x Western Conference Champions, 5x Pacific Division Champions
+            <p className="mx-auto mt-2 max-w-4xl text-center text-[0.65rem] leading-4 text-mist sm:text-xs md:mt-4 md:whitespace-nowrap md:text-sm md:leading-7 lg:text-base">
+              {stanleyCupFinalMode.matchupLabel} | 1x Stanley Cup Champion, 3x Western Conference Champions, 5x Pacific Division Champions
             </p>
           </div>
-          <div className="grid max-w-[20rem] grid-cols-2 gap-2 sm:max-w-[22rem] sm:gap-2.5 md:max-w-none md:gap-3 lg:ml-6">
-            <StatTile compact label="Record" value={currentData.overview.teamSnapshot?.record ?? "N/A"} />
-            <StatTile compact label="Points" value={currentData.overview.teamSnapshot?.points ?? "N/A"} />
-            <StatTile compact label="Division" value={currentData.overview.teamSnapshot?.standingsPosition ?? "N/A"} />
+          <div className="grid w-full max-w-3xl auto-rows-fr grid-cols-2 gap-2 sm:gap-2.5 md:grid-cols-4 md:gap-3">
+            <StatTile compact label="SCF Matchup" value={stanleyCupFinalMode.matchupLabel} valueClassName="max-w-[7rem]" />
+            <StatTile compact label="Stage" value="Cup Final" />
             <StatTile
               compact
-              label={currentData.overview.featuredGame?.label ?? "Latest Game"}
-              value={liveDetailScore ?? currentData.overview.featuredGame?.score ?? currentData.overview.latestGame.score}
+              label="Game Status"
+              value={featuredGameStatus ?? currentData.overview.featuredGame?.status ?? "Scheduled"}
+            />
+            <StatTile
+              compact
+              label={currentData.overview.bettingOdds?.label ?? "Betting Odds"}
+              value={currentData.overview.bettingOdds?.value ?? "Unavailable"}
+              detail={currentData.overview.bettingOdds?.spread ?? currentData.overview.bettingOdds?.total}
+              valueClassName="text-sm sm:text-base md:text-lg"
             />
           </div>
         </div>

@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/container";
+import { cn } from "@/lib/cn";
+import { stanleyCupFinalMode } from "@/lib/finals-mode";
 import { getVgkUpdates, type VgkUpdatesData } from "@/lib/nhl-api";
 
 export const dynamic = "force-dynamic";
@@ -81,20 +83,34 @@ function HomeGamePanel({ data }: { data: VgkUpdatesData | null }) {
   const date = showFeatured ? featured.date : nextGame?.date ?? latestGame.date;
   const score = showFeatured ? featured.score : nextGame ? null : latestGame.score;
   const status = showFeatured ? featured.status : nextGame?.status ?? latestGame.result;
+  const isFinalsOpponent = opponentAbbrev === stanleyCupFinalMode.opponentAbbrev;
+  const finalsMode = stanleyCupFinalMode.enabled && isFinalsOpponent;
+  const panelLabel = finalsMode ? "Cup Final Game Center" : label;
 
   return (
-    <section className="panel mt-8 overflow-hidden p-5 md:p-6">
+    <section
+      className={cn(
+        "panel mt-8 overflow-hidden p-5 md:p-6",
+        finalsMode && "border-gold/35 bg-[radial-gradient(circle_at_18%_0%,rgba(185,151,91,0.22),transparent_32%),linear-gradient(135deg,rgba(12,16,21,0.96),rgba(14,10,12,0.96))] shadow-[0_0_38px_rgba(185,151,91,0.14)]"
+      )}
+    >
       <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="eyebrow">VGK Game</p>
+          <p className="eyebrow">{finalsMode ? stanleyCupFinalMode.roundLabel : "VGK Game"}</p>
           <h2 className="mt-3 font-[family-name:var(--font-heading)] text-2xl font-bold text-white md:text-4xl">
-            {label}
+            {panelLabel}
           </h2>
           <p className="mt-2 text-sm text-mist md:text-base">
             {formatGameDate(date)}
             {homeAway ? ` | ${homeAway}` : ""}
             {status ? ` | ${status}` : ""}
           </p>
+          {finalsMode ? (
+            <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs font-bold uppercase tracking-[0.16em] text-gold-bright">
+              <span className="h-1.5 w-1.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(200,16,46,0.95)]" />
+              {stanleyCupFinalMode.matchupLabel}
+            </div>
+          ) : null}
         </div>
 
         <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-center">

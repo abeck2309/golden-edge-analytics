@@ -1,4 +1,5 @@
 const NHL_WEB_BASE_URL = "https://api-web.nhle.com/v1";
+const ODDS_API_BASE_URL = "https://api.the-odds-api.com/v4";
 const VGK_ABBREV = "VGK";
 
 type LocalizedString = {
@@ -42,6 +43,33 @@ type ScheduleGame = {
 type ScheduleResponse = {
   clubTimezone?: string;
   games: ScheduleGame[];
+};
+
+type BettingOddsOutcome = {
+  name: string;
+  price: number;
+  point?: number;
+};
+
+type BettingOddsMarket = {
+  key: "h2h" | "spreads" | "totals";
+  last_update?: string;
+  outcomes: BettingOddsOutcome[];
+};
+
+type BettingOddsBookmaker = {
+  key: string;
+  title: string;
+  last_update?: string;
+  markets: BettingOddsMarket[];
+};
+
+type BettingOddsEvent = {
+  id: string;
+  commence_time: string;
+  home_team: string;
+  away_team: string;
+  bookmakers?: BettingOddsBookmaker[];
 };
 
 type StandingsTeam = {
@@ -321,7 +349,102 @@ export const nhlEndpoints = {
   clubStats: (season: number, gameType: 2 | 3) => `${NHL_WEB_BASE_URL}/club-stats/${VGK_ABBREV}/${season}/${gameType}`
 };
 
+type ApiCacheEntry<T> = {
+  data: T;
+  expiresAt: number;
+  staleUntil: number;
+};
+
+const nhlResponseCache = new Map<string, ApiCacheEntry<unknown>>();
+const nhlInflightRequests = new Map<string, Promise<unknown>>();
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function nhlCacheTtlMs(url: string) {
+  if (url.includes("/gamecenter/")) return 12_000;
+  if (url.includes("/standings/")) return 60_000;
+  if (url.includes("/roster/") || url.includes("/club-stats/") || url.includes("/playoff-bracket/")) return 300_000;
+
+  return 30_000;
+}
+
+async function fetchNhlJson<T>(url: string) {
+  const response = await fetch(url, {
+    cache: "no-store",
+    headers: {
+      Accept: "application/json"
+    }
+  });
+
+  if (response.status === 429) {
+    const retryAfter = Number(response.headers.get("retry-after"));
+    await wait(Number.isFinite(retryAfter) ? Math.min(retryAfter * 1000, 2_000) : 1_000);
+
+    const retryResponse = await fetch(url, {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json"
+      }
+    });
+
+    if (!retryResponse.ok) {
+      throw new Error(`NHL API request failed (${retryResponse.status}) for ${url}`);
+    }
+
+    return retryResponse.json() as Promise<T>;
+  }
+
+  if (!response.ok) {
+    throw new Error(`NHL API request failed (${response.status}) for ${url}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+
 async function nhlApiFetch<T>(url: string): Promise<T> {
+  const now = Date.now();
+  const cached = nhlResponseCache.get(url) as ApiCacheEntry<T> | undefined;
+
+  if (cached && cached.expiresAt > now) {
+    return cached.data;
+  }
+
+  const inflight = nhlInflightRequests.get(url) as Promise<T> | undefined;
+
+  if (inflight) {
+    return inflight;
+  }
+
+  const ttl = nhlCacheTtlMs(url);
+  const request = fetchNhlJson<T>(url)
+    .then((data) => {
+      nhlResponseCache.set(url, {
+        data,
+        expiresAt: Date.now() + ttl,
+        staleUntil: Date.now() + 15 * 60_000
+      });
+
+      return data;
+    })
+    .catch((error) => {
+      if (cached && cached.staleUntil > Date.now()) {
+        return cached.data;
+      }
+
+      throw error;
+    })
+    .finally(() => {
+      nhlInflightRequests.delete(url);
+    });
+
+  nhlInflightRequests.set(url, request);
+
+  return request;
+}
+
+async function oddsApiFetch<T>(url: string): Promise<T> {
   const response = await fetch(url, {
     cache: "no-store",
     headers: {
@@ -330,7 +453,7 @@ async function nhlApiFetch<T>(url: string): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(`NHL API request failed (${response.status}) for ${url}`);
+    throw new Error(`Odds API request failed (${response.status})`);
   }
 
   return response.json() as Promise<T>;
@@ -342,6 +465,110 @@ function nameFromParts(firstName?: LocalizedString, lastName?: LocalizedString) 
 
 function displayTeamName(team: TeamInGame) {
   return [team.placeName?.default, team.commonName?.default].filter(Boolean).join(" ");
+}
+
+function normalizeTeamName(value: string) {
+  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function formatAmericanOdds(value?: number) {
+  if (typeof value !== "number") {
+    return "N/A";
+  }
+
+  return value > 0 ? `+${value}` : `${value}`;
+}
+
+function formatPoint(value?: number) {
+  if (typeof value !== "number") {
+    return "N/A";
+  }
+
+  return Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1);
+}
+
+function marketByKey(bookmaker: BettingOddsBookmaker, key: BettingOddsMarket["key"]) {
+  return bookmaker.markets.find((market) => market.key === key);
+}
+
+function outcomeForTeam(market: BettingOddsMarket | undefined, teamName: string) {
+  const normalizedName = normalizeTeamName(teamName);
+
+  return market?.outcomes.find((outcome) => normalizeTeamName(outcome.name) === normalizedName);
+}
+
+function matchupMatchesOddsEvent(event: BettingOddsEvent, game: ScheduleGame) {
+  const gameHome = normalizeTeamName(displayTeamName(game.homeTeam));
+  const gameAway = normalizeTeamName(displayTeamName(game.awayTeam));
+
+  return normalizeTeamName(event.home_team) === gameHome && normalizeTeamName(event.away_team) === gameAway;
+}
+
+function dateMatchesOddsEvent(event: BettingOddsEvent, game: ScheduleGame) {
+  const gameTime = new Date(game.startTimeUTC ?? game.gameDate).getTime();
+  const oddsTime = new Date(event.commence_time).getTime();
+
+  if (Number.isNaN(gameTime) || Number.isNaN(oddsTime)) {
+    return true;
+  }
+
+  return Math.abs(gameTime - oddsTime) <= 1000 * 60 * 60 * 12;
+}
+
+async function getVgkBettingOdds(game?: ScheduleGame | null) {
+  const apiKey = process.env.ODDS_API_KEY;
+
+  if (!apiKey || !game) {
+    return null;
+  }
+
+  const url = new URL(`${ODDS_API_BASE_URL}/sports/icehockey_nhl/odds`);
+  url.searchParams.set("regions", "us");
+  url.searchParams.set("markets", "h2h,spreads,totals");
+  url.searchParams.set("bookmakers", "fanduel");
+  url.searchParams.set("oddsFormat", "american");
+  url.searchParams.set("apiKey", apiKey);
+
+  try {
+    const events = await oddsApiFetch<BettingOddsEvent[]>(url.toString());
+    const event = events.find((candidate) => matchupMatchesOddsEvent(candidate, game) && dateMatchesOddsEvent(candidate, game));
+    const bookmaker = event?.bookmakers?.find((book) => book.key === "fanduel") ?? event?.bookmakers?.[0];
+
+    if (!event || !bookmaker) {
+      return null;
+    }
+
+    const h2h = marketByKey(bookmaker, "h2h");
+    const spreads = marketByKey(bookmaker, "spreads");
+    const totals = marketByKey(bookmaker, "totals");
+    const vgkName = displayTeamName(game.awayTeam.abbrev === VGK_ABBREV ? game.awayTeam : game.homeTeam);
+    const opponentName = displayTeamName(getOpponent(game));
+    const vgkMoneyline = outcomeForTeam(h2h, vgkName);
+    const opponentMoneyline = outcomeForTeam(h2h, opponentName);
+    const vgkSpread = outcomeForTeam(spreads, vgkName);
+    const over = totals?.outcomes.find((outcome) => outcome.name.toLowerCase() === "over");
+    const under = totals?.outcomes.find((outcome) => outcome.name.toLowerCase() === "under");
+    const lastUpdated = bookmaker.last_update ?? h2h?.last_update ?? spreads?.last_update ?? totals?.last_update ?? null;
+
+    return {
+      provider: bookmaker.title,
+      label: bookmaker.title === "FanDuel" ? "FanDuel Odds" : `${bookmaker.title} Odds`,
+      value: `${VGK_ABBREV} ${formatAmericanOdds(vgkMoneyline?.price)} | ${getOpponent(game).abbrev} ${formatAmericanOdds(opponentMoneyline?.price)}`,
+      moneyline: {
+        vgk: formatAmericanOdds(vgkMoneyline?.price),
+        opponent: formatAmericanOdds(opponentMoneyline?.price)
+      },
+      spread: vgkSpread
+        ? `${VGK_ABBREV} ${formatPoint(vgkSpread.point)} (${formatAmericanOdds(vgkSpread.price)})`
+        : null,
+      total: over
+        ? `O/U ${formatPoint(over.point)} (${formatAmericanOdds(over.price)}/${formatAmericanOdds(under?.price)})`
+        : null,
+      lastUpdated
+    };
+  } catch {
+    return null;
+  }
 }
 
 function displayBracketTeamName(team?: PlayoffBracketTeam) {
@@ -1032,8 +1259,10 @@ export async function getVgkUpdates() {
     pacificDateKey(game.startTimeUTC ?? game.gameDate) === todayKey
   );
   const featuredScheduleGame = todayScheduleGame ?? latestScheduleGame;
+  const oddsScheduleGame = todayScheduleGame ?? nextScheduleGame;
   const standing = standings.standings.find((team) => team.teamAbbrev.default === VGK_ABBREV);
   const rosterCount = (roster.forwards?.length ?? 0) + (roster.defensemen?.length ?? 0) + (roster.goalies?.length ?? 0);
+  const bettingOdds = await getVgkBettingOdds(oddsScheduleGame);
 
   if (!latestScheduleGame) {
     throw new Error("No completed VGK games were returned by the NHL schedule endpoint.");
@@ -1055,6 +1284,7 @@ export async function getVgkUpdates() {
             isLive: isLiveGame(featuredScheduleGame)
           }
         : null,
+      bettingOdds,
       latestGame: {
         id: latestScheduleGame.id,
         result: gameResult(latestScheduleGame),
